@@ -1,8 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import LoginPage from '@/pages/Login';
-import BackButton from '@/components/Login-registration-components/BackButton';
-import LoginFormComponent from '@/components/Login-registration-components/LoginFormComponent';
-import UserRedirect from '@/utils/useRedirect';
 
 jest.mock('@/components/Login-registration-components/BackButton', () => jest.fn(() => <div>BackButton</div>));
 jest.mock('@/components/Login-registration-components/LoginFormComponent', () => jest.fn(() => <div>LoginForm</div>));

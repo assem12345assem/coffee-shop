@@ -1,4 +1,5 @@
 import handleApiError from '@/utils/handleApiError';
+import type { ApiError } from '@/data/interfaces';
 
 describe('handleApiError', () => {
   it('should return the error message for standard Error objects', () => {
@@ -28,7 +29,7 @@ describe('handleApiError', () => {
 
   it('should ignore errors with a `statusCode` field and treat them as unknown', () => {
     const errorWithStatusCode = new Error('Forbidden');
-    (errorWithStatusCode as any).statusCode = 403;
+    (errorWithStatusCode as ApiError).statusCode = 403;
     expect(handleApiError(errorWithStatusCode)).toBe('Error: Forbidden');
   });
 });

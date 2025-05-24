@@ -1,11 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import HomePage from '@/pages/Home';
-import HomePageHero from '@/components/homePage-components/HomePageHero';
-import Bartons from '@/components/homePage-components/Bartons';
-import OpeningHours from '@/components/homePage-components/OpeningHours';
-import OurMenu from '@/components/homePage-components/OurMenu';
-import Review from '@/components/homePage-components/Review';
-import LocationSection from '@/components/homePage-components/LocationSection';
 
 jest.mock('@/components/homePage-components/HomePageHero', () => jest.fn(() => <div>HomePageHero</div>));
 jest.mock('@/components/homePage-components/Bartons', () => jest.fn(() => <div>Bartons</div>));
