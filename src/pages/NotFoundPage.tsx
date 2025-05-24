@@ -6,7 +6,6 @@ import BackButton from '@/components/Login-registration-components/BackButton';
 const NotFoundPage: React.FC = () => {
   return (
     <div className="flex flex-col flex-grow justify-center bg-[#f9e2c3] relative top-[-100px]">
-      <div className="w-full h-[100px] bg-black" />
       <div className="mt-10 ml-8">
         <BackButton />
       </div>

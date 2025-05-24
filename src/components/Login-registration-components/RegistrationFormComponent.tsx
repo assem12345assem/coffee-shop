@@ -22,7 +22,8 @@ import { ErrorNotification, SuccessNotification } from '@/components/Popup-compo
 import { AuthRedirect, FormElements } from '@/data/constants';
 import { createCustomerDraft, processCustomerDraftProps } from '@/utils/customerUtils';
 import type { CustomerDraft } from '@commercetools/platform-sdk';
-import { useAuth } from '@/utils/useAuth';
+import CountryInput from '@/components/Login-registration-components/CountryInput';
+
 const RegistrationFormComponent = () => {
   const [loading, setLoading] = useState(false);
   const [apiErrorMessage, setApiErrorMessage] = useState<string | null>(null);
@@ -91,7 +92,7 @@ const RegistrationFormComponent = () => {
     try {
       setLoading(true);
       await register(draft);
-      setShowSuccess('Register successful');
+      setShowSuccess('Login successful');
     } catch (error: unknown) {
       setApiErrorMessage(handleApiError(error));
     } finally {
@@ -119,7 +120,7 @@ const RegistrationFormComponent = () => {
       <Input ref={dobRef} label={FormElements.dob.label} type={FormElements.dob.type} validate={validateDOB} />
 
       <div className="flex flex-col w-full">
-        <label className="font-semibold text-base mb-1">Billing Address</label>
+        <label className="font-semibold text-base mb-1">{FormElements.billingAddress}</label>
 
         <div className="flex gap-4 mt-2">
           <Input
@@ -143,11 +144,11 @@ const RegistrationFormComponent = () => {
             placeholder={FormElements.postalCode.placeholder}
             validate={(val) => validatePostalCode(val, country)}
           />
-          <Input
+
+          <CountryInput
             ref={countryRef}
-            label={FormElements.country.label}
             placeholder={FormElements.country.placeholder}
-            validate={validateCountry}
+            validate={(value) => validateCountry(value) ?? ''}
           />
         </div>
       </div>
@@ -156,21 +157,36 @@ const RegistrationFormComponent = () => {
 
       {!useSameAddress && (
         <div className="flex flex-col w-full mt-4">
-          <label className="font-semibold text-base mb-1">Shipping Address</label>
+          <label className="font-semibold text-base mb-1">{FormElements.shippingAddress}</label>
 
           <div className="flex gap-4 mt-2">
-            <Input ref={shippingStreetRef} label="Street" placeholder="Shipping street" validate={validateStreet} />
-            <Input ref={shippingCityRef} label="City" placeholder="Shipping city" validate={validateCity} />
+            <Input
+              ref={shippingStreetRef}
+              label={FormElements.street.label}
+              placeholder={FormElements.shippingStreet.placeholder}
+              validate={validateStreet}
+            />
+            <Input
+              ref={shippingCityRef}
+              label={FormElements.city.label}
+              placeholder={FormElements.shippingCity.placeholder}
+              validate={validateCity}
+            />
           </div>
 
           <div className="flex gap-4 mt-4">
             <Input
               ref={shippingPostalCodeRef}
-              label="Postal Code"
-              placeholder="Shipping postal code"
+              label={FormElements.postalCode.label}
+              placeholder={FormElements.shippingPostalCode.placeholder}
               validate={(val) => validatePostalCode(val, shippingCountryRef.current?.getValue() ?? '')}
             />
-            <Input ref={shippingCountryRef} label="Country" placeholder="Shipping country" validate={validateCountry} />
+            <CountryInput
+              ref={shippingCountryRef}
+              label={FormElements.country.label}
+              placeholder={FormElements.shippingCountry.placeholder}
+              validate={(value) => validateCountry(value) ?? ''}
+            />
           </div>
         </div>
       )}

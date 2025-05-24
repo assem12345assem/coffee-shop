@@ -10,13 +10,16 @@ import { LABELS, ROUTES } from '@/data/routes';
 import { Link, useLocation } from 'react-router-dom';
 import { getIsAuthorizedFromSessionStorage } from '@/utils/customerUtils';
 import ProfileModal from './ProfileModal';
+import headerBg from '@/assets/footer.png';
+import registerIcon from '@/assets/register-icon.svg';
 
 function Header() {
+  const location = useLocation();
+  const isMainPage = location.pathname === ROUTES.main;
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
   const userIconRef = useRef(null);
-  const location = useLocation();
   const isAuthorized = getIsAuthorizedFromSessionStorage();
 
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -44,7 +47,22 @@ function Header() {
   }, [location]);
 
   return (
-    <div className="z-10 w-full flex justify-between items-center pt-2 px-4">
+    <div
+      className="z-10 w-full flex justify-between items-center pt-2 px-4 ${
+        !isMainPage ? 'relative' : ''
+      }"
+      style={
+        !isMainPage
+          ? {
+              backgroundImage: `url(${headerBg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              height: '115px',
+              top: 0,
+            }
+          : undefined
+      }
+    >
       <div>
         <Link to={ROUTES.main}>
           <img src={logo} alt="logo" className="w-[80px] h-[80px]" />
@@ -72,13 +90,25 @@ function Header() {
             )}
           </div>
         ) : (
-          <div>
+          <div className="flex ">
             <Link
               to={ROUTES.login}
-              className="uppercase bg-LightTaupe py-2 px-4 rounded text-lg text-white max-[900px]:hidden flex items-center gap-2 hover:bg-gray-200 transition"
+              className="ml-3 group flex items-center justify-center gap-2 w-fit mx-auto uppercase bg-LightTaupe text-white px-6 py-2 rounded-md text-lg font-medium transition-transform duration-500 ease-in-out hidden min-[900px]:flex"
             >
               <img src={loginIcon} alt="Login icon" className="w-5 h-5" />
-              {LABELS.login}
+              <span className="transition-transform duration-500 ease-in-out group-hover:scale-110">
+                {LABELS.login}
+              </span>
+            </Link>
+            <Link
+              to={ROUTES.register}
+              onClick={closeMenu}
+              className="ml-3 group flex items-center justify-center gap-2 w-fit mx-auto uppercase bg-LightTaupe text-white px-6 py-2 rounded-md text-lg font-medium transition-transform duration-500 ease-in-out hidden min-[900px]:flex"
+            >
+              <img src={registerIcon} alt="Register icon" className="w-5 h-5" />
+              <span className="transition-transform duration-500 ease-in-out group-hover:scale-110">
+                {LABELS.register}
+              </span>
             </Link>
           </div>
         )}
@@ -110,10 +140,26 @@ function Header() {
               <div className="mt-8">
                 <Link
                   to={ROUTES.login}
-                  className="block w-fit mx-auto uppercase bg-white text-black px-6 py-2 rounded-md text-lg font-medium hover:bg-gray-200 transition"
-                  onClick={closeMenu}
+                  className="group uppercase bg-LightTaupe px-3 py-1.5 rounded-md text-base text-white flex items-center gap-1.5 transition-all duration-500 ease-in-out hover:scale-[1.03] hover:bg-[#bc8f7a]"
                 >
+                  <img
+                    src={loginIcon}
+                    alt="Login icon"
+                    className="w-4 h-4 transition-opacity duration-500 group-hover:opacity-90"
+                  />
                   {LABELS.login}
+                </Link>
+
+                <Link
+                  to={ROUTES.register}
+                  className="group uppercase bg-LightTaupe px-3 py-1.5 rounded-md text-base text-white flex items-center gap-1.5 transition-all duration-500 ease-in-out hover:scale-[1.03] hover:bg-[#bc8f7a]"
+                >
+                  <img
+                    src={registerIcon}
+                    alt="Register icon"
+                    className="w-4 h-4 transition-opacity duration-500 group-hover:opacity-90"
+                  />
+                  {LABELS.register}
                 </Link>
               </div>
             )}
