@@ -22,7 +22,7 @@ import { ErrorNotification, SuccessNotification } from '@/components/Popup-compo
 import { AuthRedirect, FormElements } from '@/data/constants';
 import { createCustomerDraft, processCustomerDraftProps } from '@/utils/customerUtils';
 import type { CustomerDraft } from '@commercetools/platform-sdk';
-
+import { useAuth } from '@/utils/useAuth';
 const RegistrationFormComponent = () => {
   const [loading, setLoading] = useState(false);
   const [apiErrorMessage, setApiErrorMessage] = useState<string | null>(null);
@@ -91,7 +91,7 @@ const RegistrationFormComponent = () => {
     try {
       setLoading(true);
       await register(draft);
-      setShowSuccess('Login successful');
+      setShowSuccess('Register successful');
     } catch (error: unknown) {
       setApiErrorMessage(handleApiError(error));
     } finally {

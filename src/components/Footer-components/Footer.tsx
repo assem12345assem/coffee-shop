@@ -8,7 +8,6 @@ function Footer() {
   return (
     <footer className="w-full bg-cover bg-center " style={{ backgroundImage: `url(${footerImage})` }}>
       <div className="bg-[rgba(29,23,20,0.84)] w-full h-full flex flex-col md:flex-row justify-between items-start gap-12 px-6 py-12 md:px-[100px] md:py-[100px]">
-        {/* Navigation Links */}
         <nav>
           <ul className="flex flex-col gap-4 text-white text-base sm:text-lg md:text-[20px]">
             {footerNavList.map((item) => (
@@ -21,7 +20,6 @@ function Footer() {
           </ul>
         </nav>
 
-        {/* Contact Info */}
         <div className="flex flex-col gap-4 text-white text-base sm:text-lg md:text-[20px]">
           <Link to={ROUTES.contact}>{LABELS.contact}</Link>
           <p>25 Dockhead, London SE1 2BS</p>

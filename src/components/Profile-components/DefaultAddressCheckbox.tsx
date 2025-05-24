@@ -4,6 +4,7 @@ import { FormElements, sameAddressCheckboxMessage } from '@/data/constants';
 interface DefaultAddressCheckboxProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
+  className?: string;
 }
 
 const DefaultAddressCheckbox: React.FC<DefaultAddressCheckboxProps> = ({ checked, onChange }) => {

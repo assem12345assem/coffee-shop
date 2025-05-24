@@ -6,6 +6,7 @@ interface ButtonProps {
   label: string;
   className?: string;
   disabled?: boolean;
+  variant?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({

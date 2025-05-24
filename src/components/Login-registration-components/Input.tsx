@@ -3,14 +3,25 @@ import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import type { HandleInputType, InputHandle, InputProps, RefInputType, RefPropType } from '@/data/interfaces';
 
 const Input: RefInputType = forwardRef<InputHandle, InputProps>(
-  ({ label, type = 'text', placeholder, validate }: InputProps, ref: RefPropType): ReactElement => {
-    const [value, setValue] = useState('');
+  (
+    { label, type = 'text', placeholder, validate, value: propValue, onChange, className }: InputProps,
+    ref: RefPropType
+  ): ReactElement => {
+    const [internalValue, setInternalValue] = useState('');
     const [error, setError] = useState('');
+
+    const isControlled = propValue !== undefined;
+    const value = isControlled ? propValue : internalValue;
 
     const handleChange: HandleInputType = (e: ChangeEvent<HTMLInputElement>): void => {
       const newValue: string = e.target.value;
-      setValue(newValue);
-      setError(validate(newValue) ?? '');
+
+      if (!isControlled) {
+        setInternalValue(newValue);
+      }
+
+      setError(validate?.(newValue) ?? '');
+      onChange?.(newValue);
     };
 
     useImperativeHandle(
@@ -18,9 +29,11 @@ const Input: RefInputType = forwardRef<InputHandle, InputProps>(
       (): InputHandle => ({
         getValue: (): string => value,
         getError: (): string => error,
-        setValueExternally: (valueExternal: string): void => {
-          setValue(valueExternal);
-          setError(validate(valueExternal) ?? '');
+        setValueExternally: (val: string): void => {
+          if (!isControlled) {
+            setInternalValue(val);
+          }
+          setError(validate?.(val) ?? '');
         },
       })
     );
@@ -29,7 +42,7 @@ const Input: RefInputType = forwardRef<InputHandle, InputProps>(
       <div className="flex flex-col w-full">
         {label && <label className="font-semibold text-base mb-1">{label}</label>}
         <input
-          className="w-full h-12 px-3 border border-gray-300 rounded-lg bg-white font-poppins text-base"
+          className={`w-full h-12 px-3 border border-gray-300 rounded-lg bg-white font-poppins text-base ${className}`}
           type={type}
           placeholder={placeholder}
           value={value}

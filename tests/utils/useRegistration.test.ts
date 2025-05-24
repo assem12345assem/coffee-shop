@@ -6,7 +6,7 @@ import { processPurchase } from '@/utils/processPurchase';
 
 const ROUTES = {
   cart: '/cart',
-  main: '/',
+  login: '/login',
 };
 
 const mockNavigate = jest.fn();
@@ -73,7 +73,7 @@ describe('useRegistration hook', () => {
     });
     expect(saveLoggedInUserToSessionStorage).toHaveBeenCalledWith(mockCustomer);
     expect(processPurchase).not.toHaveBeenCalled();
-    expect(mockNavigate).toHaveBeenCalledWith(ROUTES.main);
+    expect(mockNavigate).toHaveBeenCalledWith(ROUTES.login);
   });
 
   test('throws error and does not navigate when registration fails', async () => {

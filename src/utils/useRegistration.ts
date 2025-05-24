@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { registerCustomer } from '@/api/customers';
 import type { CustomerDraft, CustomerSignInResult } from '@commercetools/platform-sdk';
 import { ROUTES } from '@/data/routes';
-import { saveLoggedInUserToSessionStorage } from '@/utils/customerUtils';
+
 import { processPurchase } from '@/utils/processPurchase';
 
 export function useRegistration(): {
@@ -18,7 +18,6 @@ export function useRegistration(): {
         const response: CustomerSignInResult = await registerCustomer(customerDraft);
 
         if (response.customer) {
-          saveLoggedInUserToSessionStorage(response.customer);
           if (response.cart) {
             processPurchase(response.cart);
             setTimeout((): void => {
@@ -26,7 +25,7 @@ export function useRegistration(): {
             }, 2000);
           } else {
             setTimeout((): void => {
-              navigate(ROUTES.main);
+              navigate(ROUTES.login);
             }, 2000);
           }
           console.log(response.customer);
