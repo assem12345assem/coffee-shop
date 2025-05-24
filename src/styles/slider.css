@@ -1,0 +1,69 @@
+/* Hides slick default arrows */
+.slick-prev::before,
+.slick-next::before {
+  display: none;
+}
+
+.custom-slider {
+  position: relative;
+}
+
+.custom-arrow-prev,
+.custom-arrow-next {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.custom-arrow-prev {
+  left: -25px;
+}
+
+.custom-arrow-next {
+  right: 0px;
+}
+
+.arrow-icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.arrow-svg {
+  width: 22px;
+  height: 35px;
+  display: block;
+}
+
+.arrow-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.custom-arrow-prev:not(.arrow-disabled):hover,
+.custom-arrow-next:not(.arrow-disabled):hover {
+  transform: translateY(-50%) scale(1.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .custom-arrow-prev {
+    left: -15px;
+  }
+  .custom-arrow-next {
+    right: -15px;
+  }
+}
