@@ -92,7 +92,7 @@ const RegistrationFormComponent = () => {
     try {
       setLoading(true);
       await register(draft);
-      setShowSuccess('Login successful');
+      setShowSuccess('Register successful');
     } catch (error: unknown) {
       setApiErrorMessage(handleApiError(error));
     } finally {

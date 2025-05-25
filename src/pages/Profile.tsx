@@ -49,6 +49,7 @@ function Profile() {
 
         <div className="bg-coffeeBrown rounded-lg shadow-xl overflow-hidden">
           <form onSubmit={handleSubmit} className="p-6 sm:p-8">
+
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-creamLight border-b border-rustBrown pb-2 mb-6">
                 Personal Information
