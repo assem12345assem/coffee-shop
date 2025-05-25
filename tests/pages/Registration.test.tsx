@@ -1,8 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { useNavigate } from 'react-router-dom';
 import Register from '@/pages/Registration';
-import BackButton from '@/components/Login-registration-components/BackButton';
-import RegistrationFormComponent from '@/components/Login-registration-components/RegistrationFormComponent';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({

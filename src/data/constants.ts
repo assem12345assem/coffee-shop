@@ -39,6 +39,20 @@ export const FormElements = {
   sameAddress: {
     label: 'Use same address for shipping',
   },
+  shippingCountry: {
+    placeholder: 'Shipping Country',
+  },
+  shippingPostalCode: {
+    placeholder: 'Shipping postal code',
+  },
+  shippingCity: {
+    placeholder: 'Shipping city',
+  },
+  shippingStreet: {
+    placeholder: 'Shipping street',
+  },
+  shippingAddress: 'Shipping Address',
+  billingAddress: 'Billing Address',
 };
 
 export const sameAddressCheckboxMessage = 'Check this if you want to use your billing address for shipping as well.';
@@ -53,3 +67,12 @@ export const AuthRedirect = {
     label: 'Sign Up',
   },
 };
+export const allowedCountries = [
+  'United States',
+  'Canada',
+  'United Kingdom',
+  'Australia',
+  'Georgia',
+  'Uzbekistan',
+  'Kyrgyzstan',
+];

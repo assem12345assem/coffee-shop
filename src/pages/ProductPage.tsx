@@ -10,7 +10,6 @@ const ProductPage: React.FC = () => {
     const loadProducts = async () => {
       try {
         const data = await fetchAllProducts();
-        console.log(data.results);
         setProducts(data.results);
       } catch (err) {
         setError('Could not load products');

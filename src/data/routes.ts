@@ -22,6 +22,8 @@ export const LABELS = {
   login: 'Login',
   register: 'Register',
   contact: 'CONTACT',
+  profile: 'Profile',
+  logout: 'Log Out',
 };
 export const footerNavList = [
   { route: ROUTES.main, label: LABELS.home },

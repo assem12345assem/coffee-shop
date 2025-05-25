@@ -1,3 +1,5 @@
+import { allowedCountries } from '@/data/constants';
+
 export function validateEmail(email: string): string | null {
   const trimmedEmail = email.trim();
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -87,15 +89,6 @@ export function validatePostalCode(postalCode: string, country: string): string 
 
 export function validateCountry(country: string): string | null {
   const trimmedCountry = country.trim();
-  const allowedCountries = [
-    'United States',
-    'Canada',
-    'United Kingdom',
-    'Australia',
-    'Georgia',
-    'Uzbekistan',
-    'Kyrgyzstan',
-  ];
 
   if (!trimmedCountry) {
     return 'Country cannot be empty.';

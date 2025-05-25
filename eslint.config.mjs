@@ -44,7 +44,7 @@ export default [
       ...jestPlugin.configs['recommended'].rules,
     },
   },
-  { ignores: ['jest.config.js', 'src/pages/**/*.tsx', 'jest.setup.ts'] },
+  { ignores: ['jest.config.js', 'src/pages/**/*.tsx', 'jest.setup.ts', 'dist'] },
 
   // React support
   {
