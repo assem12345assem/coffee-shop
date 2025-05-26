@@ -25,7 +25,7 @@ export function useRegistration(): {
             }, 2000);
           } else {
             setTimeout((): void => {
-              navigate(ROUTES.login);
+              navigate(ROUTES.main);
             }, 2000);
           }
         } else {
