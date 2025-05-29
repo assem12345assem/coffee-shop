@@ -29,6 +29,8 @@ const RegistrationFormComponent = () => {
   const [apiErrorMessage, setApiErrorMessage] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState<string | null>(null);
   const [useSameAddress, setUseSameAddress] = useState(true);
+  const [setAsDefaultBilling, setSetAsDefaultBilling] = useState(true);
+  const [setAsDefaultShipping, setSetAsDefaultShipping] = useState(true);
 
   const { register } = useRegistration();
 
@@ -84,10 +86,22 @@ const RegistrationFormComponent = () => {
       shippingStreetRef,
       shippingCityRef,
       shippingPostalCodeRef,
-      shippingCountryRef
+      shippingCountryRef,
+      setAsDefaultBilling,
+      setAsDefaultShipping
     );
 
-    const draft: CustomerDraft = createCustomerDraft(props);
+    const draft: CustomerDraft = {
+      ...createCustomerDraft(props),
+      defaultBillingAddress: props.defaultBilling ? 0 : undefined,
+      defaultShippingAddress: props.useSameAddress
+        ? props.defaultBilling
+          ? 0
+          : undefined
+        : props.defaultShipping
+          ? 1
+          : undefined,
+    };
 
     try {
       setLoading(true);
@@ -163,6 +177,14 @@ const RegistrationFormComponent = () => {
             }}
           />
         </div>
+        <label className="mt-2 text-sm flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={setAsDefaultBilling}
+            onChange={() => setSetAsDefaultBilling(!setAsDefaultBilling)}
+          />
+          Set this address as my default billing address
+        </label>
       </div>
 
       <DefaultAddressCheckbox checked={useSameAddress} onChange={setUseSameAddress} />
@@ -212,6 +234,14 @@ const RegistrationFormComponent = () => {
               }}
             />
           </div>
+          <label className="mt-2 text-sm flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={setAsDefaultShipping}
+              onChange={() => setSetAsDefaultShipping(!setAsDefaultShipping)}
+            />
+            Set this address as my default shipping address
+          </label>
         </div>
       )}
 

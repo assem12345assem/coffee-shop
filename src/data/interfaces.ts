@@ -191,6 +191,8 @@ export interface RegistrationFormItems {
   shippingCity: string;
   shippingPostalCode: string;
   shippingCountry: string;
+  defaultShipping?: boolean;
+  defaultBilling?: boolean;
 }
 
 export interface SessionUser {
