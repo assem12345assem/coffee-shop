@@ -7,21 +7,12 @@ interface Props {
 }
 
 const ProductComponent: React.FC<Props> = ({ product }) => {
-  const getImageUrl = (path: string) => {
-    const cleanPath = path
-      .replace(/^assets\//, '')
-      .replace(/^\/?src\/assets\//, '')
-      .replace(/^public\//, '');
-    console.log(cleanPath);
-    return `/${cleanPath}`;
-  };
-
   return (
     <div className="bg-coffeeBrown rounded-[20px] p-[15px] w-[260px] h-[444px] relative">
       <div className="mb-2">
         {product.images.length > 0 && (
           <img
-            src={getImageUrl(product.images[0])}
+            src={product.images[0]}
             alt={`${product.name} main image`}
             className="w-[230px] h-[148px] object-cover rounded-[20px] mb-2"
           />
