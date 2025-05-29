@@ -56,15 +56,6 @@ class ProductService {
   private applyFilters(product: ProductInteface): boolean {
     const { category, isSale, type } = this.filters;
 
-    console.log('Filtering product:', product.name);
-    console.log('Filter values:', { category, isSale, type });
-    console.log('Product values:', {
-      category: product.category,
-      is_sale: product.is_sale,
-      type: product.type,
-      coffeeTypeFromFilterKey: type ? CoffeeType[type as keyof typeof CoffeeType] : undefined,
-    });
-
     return (
       (category ? product.category === category : true) &&
       (isSale !== undefined ? product.is_sale === isSale : true) &&

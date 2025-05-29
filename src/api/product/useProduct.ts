@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { productService } from './ProductService';
 import type { ProductInteface } from '@/data/interfaces';
 
@@ -23,12 +23,17 @@ export function useProducts() {
     return () => productService.unsubscribe(update);
   }, []);
 
+  const setSearchTerm = useMemo(() => productService.setSearchTerm.bind(productService), []);
+  const setFilter = useMemo(() => productService.setFilter.bind(productService), []);
+  const setSort = useMemo(() => productService.setSort.bind(productService), []);
+  const setPagination = useMemo(() => productService.setPagination.bind(productService), []);
+
   return {
     products,
     total,
-    setSearchTerm: productService.setSearchTerm.bind(productService),
-    setFilter: productService.setFilter.bind(productService),
-    setSort: productService.setSort.bind(productService),
-    setPagination: productService.setPagination.bind(productService),
+    setSearchTerm,
+    setFilter,
+    setSort,
+    setPagination,
   };
 }
