@@ -142,13 +142,25 @@ const RegistrationFormComponent = () => {
             ref={postalCodeRef}
             label={FormElements.postalCode.label}
             placeholder={FormElements.postalCode.placeholder}
-            validate={(val) => validatePostalCode(val, country)}
+            validate={(val) => validatePostalCode(val, countryRef.current?.getValue() ?? '')}
           />
 
           <CountryInput
             ref={countryRef}
             placeholder={FormElements.country.placeholder}
-            validate={(value) => validateCountry(value) ?? ''}
+            validate={validateCountry}
+            onChange={(selectedCountry) => {
+              countryRef.current?.setValueExternally(selectedCountry);
+
+              const currentPostal = postalCodeRef.current?.getValue() ?? '';
+              const error = validatePostalCode(currentPostal, selectedCountry);
+              postalCodeRef.current?.setValueExternally(currentPostal);
+              if (error) {
+                setTimeout(() => {
+                  postalCodeRef.current?.setValueExternally(currentPostal);
+                }, 0);
+              }
+            }}
           />
         </div>
       </div>
@@ -185,7 +197,19 @@ const RegistrationFormComponent = () => {
               ref={shippingCountryRef}
               label={FormElements.country.label}
               placeholder={FormElements.shippingCountry.placeholder}
-              validate={(value) => validateCountry(value) ?? ''}
+              validate={validateCountry}
+              onChange={(selectedCountry) => {
+                shippingCountryRef.current?.setValueExternally(selectedCountry);
+
+                const currentPostal = shippingPostalCodeRef.current?.getValue() ?? '';
+                const error = validatePostalCode(currentPostal, selectedCountry);
+                shippingPostalCodeRef.current?.setValueExternally(currentPostal);
+                if (error) {
+                  setTimeout(() => {
+                    shippingPostalCodeRef.current?.setValueExternally(currentPostal);
+                  }, 0);
+                }
+              }}
             />
           </div>
         </div>
@@ -194,7 +218,7 @@ const RegistrationFormComponent = () => {
       <Input
         ref={emailRef}
         label={FormElements.email.label}
-        type={FormElements.email.type}
+        type="text"
         placeholder={FormElements.email.placeholder}
         validate={validateEmail}
       />

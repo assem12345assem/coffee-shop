@@ -75,8 +75,8 @@ export interface Address {
   streetNumber: string;
   postalCode: string;
   city: string;
-  country: string; // ISO 3166-1 alpha-2 code (e.g., 'GE')
-  useAsDefault?: boolean; // Optional: true = use for shipping/billing
+  country: string;
+  useAsDefault?: boolean;
 }
 
 export interface User {
@@ -84,7 +84,7 @@ export interface User {
   password: string;
   firstName?: string;
   lastName?: string;
-  dateOfBirth?: string; // Format: YYYY-MM-DD
+  dateOfBirth?: string;
   address?: Address;
 }
 
@@ -139,6 +139,7 @@ export interface InputHandle {
   getValue: StringFunction;
   getError: StringFunction;
   setValueExternally: (value: string) => void;
+  triggerValidation?: () => void;
 }
 export interface InputProps {
   label: string;

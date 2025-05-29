@@ -47,7 +47,7 @@ const LoginFormComponent: React.FC = () => {
       <Input
         ref={emailRef}
         label={FormElements.email.label}
-        type={FormElements.email.type}
+        type="text"
         placeholder={FormElements.email.placeholder}
         validate={validateEmail}
       />
