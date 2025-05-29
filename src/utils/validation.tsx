@@ -1,11 +1,18 @@
 import { allowedCountries } from '@/data/constants';
 
 export function validateEmail(email: string): string | null {
-  const trimmedEmail = email.trim();
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (email !== trimmedEmail) {
+  console.log('[validateEmail] received:', `"${email}"`);
+  const hasLeadingOrTrailingWhitespace = email !== email.trim();
+  if (hasLeadingOrTrailingWhitespace) {
     return 'Email must not contain leading or trailing spaces.';
   }
+
+  const trimmedEmail = email.trim();
+  if (trimmedEmail === '') {
+    return 'Email cannot be empty.';
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(trimmedEmail)) {
     return 'Please enter a valid email address (e.g., user@example.com).';
   }
@@ -13,10 +20,12 @@ export function validateEmail(email: string): string | null {
 }
 
 export function validatePassword(password: string): string | null {
-  const trimmedPassword = password.trim();
-  if (password !== trimmedPassword) {
+  if (password !== password.trim()) {
     return 'Password must not contain leading or trailing spaces.';
   }
+
+  const trimmedPassword = password.trim();
+
   if (trimmedPassword.length < 8) {
     return 'Password must be at least 8 characters long.';
   }
@@ -32,6 +41,7 @@ export function validatePassword(password: string): string | null {
   if (!/[!@#$%^&*]/.test(trimmedPassword)) {
     return 'Password must contain at least one special character (!@#$%^&*).';
   }
+
   return null;
 }
 
@@ -43,6 +53,7 @@ export function validateDOB(dob: string): string | null {
   const date = new Date(dob);
   const today = new Date();
   const age = today.getFullYear() - date.getFullYear();
+
   if (isNaN(date.getTime())) return 'Invalid date format.';
   if (age < 13 || (age === 13 && today < new Date(date.getFullYear() + 13, date.getMonth(), date.getDate()))) {
     return 'You must be at least 13 years old.';
@@ -66,21 +77,46 @@ export function validatePostalCode(postalCode: string, country: string): string 
     return 'Postal code cannot be empty.';
   }
 
-  if (trimmedCountry === 'United States') {
-    const usPostalRegex = /^\d{5}$/;
-    if (!usPostalRegex.test(trimmedPostal)) {
-      return 'Postal code must be 5 digits (e.g., 12345) for United States.';
-    }
-  } else if (trimmedCountry === 'Canada') {
-    const canadaPostalRegex = /^[A-Za-z]\d[A-Za-z] \d[A-Za-z]\d$/;
-    if (!canadaPostalRegex.test(trimmedPostal)) {
-      return 'Postal code must match A1B 2C3 format for Canada.';
+  const postalCodeFormats: Record<string, { regex: RegExp; message: string }> = {
+    'United States': {
+      regex: /^\d{5}$/,
+      message: 'Postal code must be 5 digits (e.g., 12345) for the United States.',
+    },
+    Canada: {
+      regex: /^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/,
+      message: 'Postal code must match the Canadian format (e.g., A1B 2C3).',
+    },
+    Uzbekistan: {
+      regex: /^\d{6}$/,
+      message: 'Postal code must be 6 digits (e.g., 100000) for Uzbekistan.',
+    },
+    Georgia: {
+      regex: /^\d{4}$/,
+      message: 'Postal code must be 4 digits (e.g., 0105) for Georgia.',
+    },
+    Kyrgyzstan: {
+      regex: /^\d{6}$/,
+      message: 'Postal code must be 6 digits (e.g., 720001) for Kyrgyzstan.',
+    },
+    'United Kingdom': {
+      regex: /^[A-Za-z]{1,2}\d[A-Za-z\d]? ?\d[A-Za-z]{2}$/,
+      message: 'Postal code must match the UK format (e.g., SW1A 1AA).',
+    },
+    Australia: {
+      regex: /^\d{4}$/,
+      message: 'Postal code must be 4 digits (e.g., 2000) for Australia.',
+    },
+  };
+
+  if (postalCodeFormats[trimmedCountry]) {
+    const { regex, message } = postalCodeFormats[trimmedCountry];
+    if (!regex.test(trimmedPostal)) {
+      return message;
     }
   } else {
     const genericPostalRegex = /^[A-Za-z0-9\s-]{3,10}$/;
-
     if (!genericPostalRegex.test(trimmedPostal)) {
-      return 'Invalid postal code format.';
+      return 'Postal code must be 3–10 characters and may include letters, digits, spaces, or hyphens.';
     }
   }
 
@@ -90,12 +126,12 @@ export function validatePostalCode(postalCode: string, country: string): string 
 export function validateCountry(country: string): string | null {
   const trimmedCountry = country.trim();
 
-  if (!trimmedCountry) {
+  if (!trimmedCountry || trimmedCountry === 'Country') {
     return 'Country cannot be empty.';
   }
 
   if (!allowedCountries.includes(trimmedCountry)) {
-    return 'Please select a valid country.';
+    return 'Please select a valid country from the list.';
   }
 
   return null;

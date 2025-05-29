@@ -4,39 +4,31 @@ import type { HandleInputType, InputHandle, InputProps, RefInputType, RefPropTyp
 
 const Input: RefInputType = forwardRef<InputHandle, InputProps>(
   (
-    { label, type = 'text', placeholder, validate, value: propValue, onChange, className }: InputProps,
+    { label, type = 'text', placeholder, validate, onChange, className }: InputProps,
     ref: RefPropType
   ): ReactElement => {
-    const [internalValue, setInternalValue] = useState('');
+    const [value, setValue] = useState('');
     const [error, setError] = useState('');
 
-    const isControlled = propValue !== undefined;
-    const value = isControlled ? propValue : internalValue;
-
     const handleChange: HandleInputType = (e: ChangeEvent<HTMLInputElement>): void => {
-      const newValue: string = e.target.value;
+      const newValue = e.target.value;
 
-      if (!isControlled) {
-        setInternalValue(newValue);
-      }
-
+      setValue(newValue);
       setError(validate?.(newValue) ?? '');
       onChange?.(newValue);
     };
 
-    useImperativeHandle(
-      ref,
-      (): InputHandle => ({
-        getValue: (): string => value,
-        getError: (): string => error,
-        setValueExternally: (val: string): void => {
-          if (!isControlled) {
-            setInternalValue(val);
-          }
-          setError(validate?.(val) ?? '');
-        },
-      })
-    );
+    useImperativeHandle(ref, () => ({
+      getValue: () => value,
+      getError: () => error,
+      setValueExternally: (val: string) => {
+        setValue(val);
+        setError(validate?.(val) ?? '');
+      },
+      triggerValidation: () => {
+        setError(validate?.(value) ?? '');
+      },
+    }));
 
     return (
       <div className="flex flex-col w-full">
@@ -47,6 +39,7 @@ const Input: RefInputType = forwardRef<InputHandle, InputProps>(
           placeholder={placeholder}
           value={value}
           onChange={handleChange}
+          onBlur={() => setError(validate?.(value) ?? '')}
           required
         />
         {error && <p className="text-red-500 text-sm mt-1">{error}</p>}

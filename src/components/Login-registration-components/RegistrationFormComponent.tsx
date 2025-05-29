@@ -29,6 +29,8 @@ const RegistrationFormComponent = () => {
   const [apiErrorMessage, setApiErrorMessage] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState<string | null>(null);
   const [useSameAddress, setUseSameAddress] = useState(true);
+  const [setAsDefaultBilling, setSetAsDefaultBilling] = useState(true);
+  const [setAsDefaultShipping, setSetAsDefaultShipping] = useState(true);
 
   const { register } = useRegistration();
 
@@ -84,10 +86,22 @@ const RegistrationFormComponent = () => {
       shippingStreetRef,
       shippingCityRef,
       shippingPostalCodeRef,
-      shippingCountryRef
+      shippingCountryRef,
+      setAsDefaultBilling,
+      setAsDefaultShipping
     );
 
-    const draft: CustomerDraft = createCustomerDraft(props);
+    const draft: CustomerDraft = {
+      ...createCustomerDraft(props),
+      defaultBillingAddress: props.defaultBilling ? 0 : undefined,
+      defaultShippingAddress: props.useSameAddress
+        ? props.defaultBilling
+          ? 0
+          : undefined
+        : props.defaultShipping
+          ? 1
+          : undefined,
+    };
 
     try {
       setLoading(true);
@@ -142,15 +156,35 @@ const RegistrationFormComponent = () => {
             ref={postalCodeRef}
             label={FormElements.postalCode.label}
             placeholder={FormElements.postalCode.placeholder}
-            validate={(val) => validatePostalCode(val, country)}
+            validate={(val) => validatePostalCode(val, countryRef.current?.getValue() ?? '')}
           />
 
           <CountryInput
             ref={countryRef}
             placeholder={FormElements.country.placeholder}
-            validate={(value) => validateCountry(value) ?? ''}
+            validate={validateCountry}
+            onChange={(selectedCountry) => {
+              countryRef.current?.setValueExternally(selectedCountry);
+
+              const currentPostal = postalCodeRef.current?.getValue() ?? '';
+              const error = validatePostalCode(currentPostal, selectedCountry);
+              postalCodeRef.current?.setValueExternally(currentPostal);
+              if (error) {
+                setTimeout(() => {
+                  postalCodeRef.current?.setValueExternally(currentPostal);
+                }, 0);
+              }
+            }}
           />
         </div>
+        <label className="mt-2 text-sm flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={setAsDefaultBilling}
+            onChange={() => setSetAsDefaultBilling(!setAsDefaultBilling)}
+          />
+          Set this address as my default billing address
+        </label>
       </div>
 
       <DefaultAddressCheckbox checked={useSameAddress} onChange={setUseSameAddress} />
@@ -185,16 +219,36 @@ const RegistrationFormComponent = () => {
               ref={shippingCountryRef}
               label={FormElements.country.label}
               placeholder={FormElements.shippingCountry.placeholder}
-              validate={(value) => validateCountry(value) ?? ''}
+              validate={validateCountry}
+              onChange={(selectedCountry) => {
+                shippingCountryRef.current?.setValueExternally(selectedCountry);
+
+                const currentPostal = shippingPostalCodeRef.current?.getValue() ?? '';
+                const error = validatePostalCode(currentPostal, selectedCountry);
+                shippingPostalCodeRef.current?.setValueExternally(currentPostal);
+                if (error) {
+                  setTimeout(() => {
+                    shippingPostalCodeRef.current?.setValueExternally(currentPostal);
+                  }, 0);
+                }
+              }}
             />
           </div>
+          <label className="mt-2 text-sm flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={setAsDefaultShipping}
+              onChange={() => setSetAsDefaultShipping(!setAsDefaultShipping)}
+            />
+            Set this address as my default shipping address
+          </label>
         </div>
       )}
 
       <Input
         ref={emailRef}
         label={FormElements.email.label}
-        type={FormElements.email.type}
+        type="text"
         placeholder={FormElements.email.placeholder}
         validate={validateEmail}
       />
