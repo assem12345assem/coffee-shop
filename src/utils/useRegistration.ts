@@ -6,6 +6,7 @@ import type { CustomerDraft, CustomerSignInResult } from '@commercetools/platfor
 import { ROUTES } from '@/data/routes';
 
 import { processPurchase } from '@/utils/processPurchase';
+import { saveLoggedInUserToSessionStorage } from '@/utils/customerUtils';
 
 export function useRegistration(): {
   register: (customerDraft: CustomerDraft) => Promise<void>;
@@ -24,8 +25,9 @@ export function useRegistration(): {
               navigate(ROUTES.cart);
             }, 2000);
           } else {
+            saveLoggedInUserToSessionStorage(response.customer);
             setTimeout((): void => {
-              navigate(ROUTES.login);
+              navigate(ROUTES.main);
             }, 2000);
           }
         } else {
