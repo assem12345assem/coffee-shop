@@ -17,7 +17,9 @@ export function processCustomerDraftProps(
   shippingStreetRef: FormRefItem,
   shippingCityRef: FormRefItem,
   shippingPostalCodeRef: FormRefItem,
-  shippingCountryRef: FormRefItem
+  shippingCountryRef: FormRefItem,
+  defaultBilling: boolean,
+  defaultShipping: boolean
 ): RegistrationFormItems {
   return {
     firstName: firstNameRef.current?.getValue() ?? '',
@@ -34,6 +36,8 @@ export function processCustomerDraftProps(
     shippingCity: shippingCityRef?.current?.getValue() ?? '',
     shippingPostalCode: shippingPostalCodeRef?.current?.getValue() ?? '',
     shippingCountry: shippingCountryRef?.current?.getValue() ?? '',
+    defaultBilling,
+    defaultShipping,
   };
 }
 
@@ -59,17 +63,19 @@ export function createCustomerDraft(prop: RegistrationFormItems): CustomerDraft 
     });
   }
 
-  return {
+  const draft: CustomerDraft = {
     email: prop.email,
     password: prop.password,
     firstName: prop.firstName,
     lastName: prop.lastName,
     dateOfBirth: prop.dateOfBirth,
     addresses,
-    defaultBillingAddress: 0,
-    defaultShippingAddress: prop.useSameAddress ? 0 : 1,
     isEmailVerified: true,
+    ...(prop.defaultBilling ? { defaultBillingAddress: 0 } : {}),
+    ...(prop.defaultShipping ? { defaultShippingAddress: prop.useSameAddress ? 0 : 1 } : {}),
   };
+
+  return draft;
 }
 
 export const isAuthorizedKey = 'isAuthorized';

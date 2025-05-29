@@ -7,7 +7,7 @@ interface CountryInputProps {
   label?: string;
   value?: string;
   onChange?: (value: string) => void;
-  validate?: (value: string) => string;
+  validate?: (value: string) => string | null;
   className?: string;
   countries?: string[];
   placeholder?: string;
@@ -45,7 +45,11 @@ const CountryInput = forwardRef<InputHandle, CountryInputProps>(
       ref,
       (): InputHandle => ({
         getValue: (): string => value,
-        getError: (): string => error,
+        getError: (): string => {
+          const validationError = validate?.(value) ?? null;
+          setError(validationError ?? '');
+          return validationError ?? '';
+        },
         setValueExternally: (val: string): void => {
           if (!isControlled) {
             setInternalValue(val);
@@ -64,6 +68,7 @@ const CountryInput = forwardRef<InputHandle, CountryInputProps>(
           `}
           value={value}
           onChange={handleChange}
+          onBlur={() => setError(validate?.(value) ?? '')}
         >
           <option value="">{placeholder}</option>
           {countries.map((country) => (
