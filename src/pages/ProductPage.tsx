@@ -14,6 +14,7 @@ import {
 import SearchComponent from '@/components/Product-components/SearchComponent';
 import PaginationComponent from '@/components/Product-components/PaginationComponent';
 import FilterComponent from '@/components/Product-components/FilterComponent';
+import hero from '@/assets/menu-page.jpg';
 
 const ProductPage: React.FC = () => {
   const { products, total, setSearchTerm, setFilter, setPagination, setSort } = useProducts();
@@ -71,16 +72,22 @@ const ProductPage: React.FC = () => {
   );
 
   return (
-    <div style={{ padding: '1rem' }}>
-      <SearchComponent ref={searchRef} placeholder="Search by name..." onSearchChange={handleSearchChange} />
-      <SortingComponent onSortChange={handleSortChange} />
-      <FilterComponent onFilterChange={handleFilterChange} />
+    <div className="w-full  bg-cover bg-center py-[100px]" style={{ backgroundImage: `url(${hero})` }}>
+      <div className="w-full flex justify-between items-baseline gap-4 mb-8 px-4 max-[1180px]:flex-col max-[1130px]:items-center">
+        <SearchComponent ref={searchRef} placeholder="Search by name..." onSearchChange={handleSearchChange} />
+        <div className="flex gap-4 items-center max-[800px]:flex-col max-[800px]:items-center">
+          <SortingComponent onSortChange={handleSortChange} />
+          <FilterComponent onFilterChange={handleFilterChange} />
+        </div>
+      </div>
 
-      {products.length === 0 ? (
-        <p>No products match your search.</p>
-      ) : (
-        products.map((product: ProductInteface) => <ProductComponent key={product.id} product={product} />)
-      )}
+      <div className=" w-full flex flex-wrap gap-4 justify-center">
+        {products.length === 0 ? (
+          <p>No products match your search.</p>
+        ) : (
+          products.map((product: ProductInteface) => <ProductComponent key={product.id} product={product} />)
+        )}
+      </div>
 
       <PaginationComponent
         totalPages={totalPages}

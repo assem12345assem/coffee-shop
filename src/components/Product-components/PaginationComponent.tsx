@@ -38,17 +38,9 @@ const PaginationComponent: ForwardRefRenderFunction<PaginationHandle, Pagination
     if (onPageChange) onPageChange(page);
   };
 
-  const nextPage = () => {
-    changePage(currentPage + 1);
-  };
-
-  const prevPage = () => {
-    changePage(currentPage - 1);
-  };
-
-  const reset = () => {
-    changePage(1);
-  };
+  const nextPage = () => changePage(currentPage + 1);
+  const prevPage = () => changePage(currentPage - 1);
+  const reset = () => changePage(1);
 
   const handlePageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -131,49 +123,58 @@ const PaginationComponent: ForwardRefRenderFunction<PaginationHandle, Pagination
   }));
 
   return (
-    <div className={className} style={{ marginTop: '1rem', ...style }}>
-      <span>
+    <div
+      className={`mt-4 px-4 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-black ${className ?? ''}`}
+      style={style}
+    >
+      <span className="text-lg font-medium">
         Page: {currentPage} / {totalPages}
       </span>
-      <button disabled={currentPage === 1} onClick={prevPage} style={{ marginLeft: '1rem' }}>
-        Prev
-      </button>
-      <button disabled={currentPage === totalPages} onClick={nextPage} style={{ marginLeft: '0.5rem' }}>
-        Next
-      </button>
 
-      <input
-        type="text"
-        value={inputPageValue}
-        onChange={handlePageInputChange}
-        onBlur={handlePageInputBlurOrEnter}
-        onKeyDown={handlePageInputKeyDown}
-        style={{
-          marginLeft: '1rem',
-          width: '3rem',
-          textAlign: 'center',
-          borderColor: pageError ? 'red' : undefined,
-        }}
-        aria-label="Page number input"
-      />
-      {pageError && <div style={{ color: 'red', marginTop: '0.25rem', fontSize: '0.8rem' }}>{pageError}</div>}
+      <div className="flex items-center gap-2">
+        <button
+          disabled={currentPage === 1}
+          onClick={prevPage}
+          className="px-3 py-1 border border-black text-black rounded-md hover:bg-coffeeBrown hover:text-white transition disabled:opacity-50"
+        >
+          Prev
+        </button>
+        <button
+          disabled={currentPage === totalPages}
+          onClick={nextPage}
+          className="px-3 py-1 border border-black text-black rounded-md hover:bg-coffeeBrown hover:text-white transition disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
 
-      <span style={{ marginLeft: '1rem' }}>Items per page:</span>
-      <input
-        type="text"
-        value={inputSizeValue}
-        onChange={handleSizeInputChange}
-        onBlur={handleSizeInputBlurOrEnter}
-        onKeyDown={handleSizeInputKeyDown}
-        style={{
-          marginLeft: '0.5rem',
-          width: '3rem',
-          textAlign: 'center',
-          borderColor: sizeError ? 'red' : undefined,
-        }}
-        aria-label="Items per page input"
-      />
-      {sizeError && <div style={{ color: 'red', marginTop: '0.25rem', fontSize: '0.8rem' }}>{sizeError}</div>}
+      <div className="flex items-center gap-1">
+        <label className="text-sm">Go to:</label>
+        <input
+          type="text"
+          value={inputPageValue}
+          onChange={handlePageInputChange}
+          onBlur={handlePageInputBlurOrEnter}
+          onKeyDown={handlePageInputKeyDown}
+          className={`w-16 px-2 py-1 border rounded-md text-center text-coffeeBrown outline-none ${pageError ? 'border-red-500' : 'border-coffeeBrown'}`}
+          aria-label="Page number input"
+        />
+      </div>
+      {pageError && <div className="text-red-500 text-xs">{pageError}</div>}
+
+      <div className="flex items-center gap-1">
+        <label className="text-sm">Items per page:</label>
+        <input
+          type="text"
+          value={inputSizeValue}
+          onChange={handleSizeInputChange}
+          onBlur={handleSizeInputBlurOrEnter}
+          onKeyDown={handleSizeInputKeyDown}
+          className={`w-16 px-2 py-1 border rounded-md text-center text-coffeeBrown outline-none ${sizeError ? 'border-red-500' : 'border-coffeeBrown'}`}
+          aria-label="Items per page input"
+        />
+      </div>
+      {sizeError && <div className="text-red-500 text-xs">{sizeError}</div>}
     </div>
   );
 };

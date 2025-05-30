@@ -2,11 +2,9 @@ import React, { useState } from 'react';
 import type { SortField, SortOrder, SortingComponentProps } from '@/data/interfaces';
 
 const sortFieldLabels: Record<SortField, string> = {
-  id: 'ID',
   name: 'Name',
   price: 'Price',
   type: 'Type',
-  category: 'Category',
 };
 
 const sortFields = (Object.keys(sortFieldLabels) as SortField[]).map((field) => ({
@@ -40,25 +38,30 @@ const SortingComponent: React.FC<SortingComponentProps> = ({
   };
 
   return (
-    <div style={{ marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
+    <div className="mb-4 flex flex-wrap gap-4 items-center">
       {sortFields.map(({ label, field }) => (
         <button
           key={field}
           onClick={() => toggleSort(field)}
-          style={{
-            padding: '0.5rem 1rem',
-            fontWeight: field === sortField ? 'bold' : 'normal',
-            cursor: 'pointer',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            backgroundColor: field === sortField ? '#e0e0e0' : 'white',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.3rem',
-            userSelect: 'none',
-          }}
+          className={`
+            px-4 py-2
+            rounded-lg
+            border-2 border-coffeeBrown
+            flex items-center gap-1
+            select-none
+            cursor-pointer
+            transition-colors duration-300
+            ${
+              field === sortField
+                ? 'font-bold bg-coffeeBrown text-white border-coffeeBrown'
+                : 'font-normal bg-transparent text-coffeeBrown border-coffeeBrown hover:bg-coffeeBrown hover:text-white'
+            }
+            focus:outline-none focus:border-rustBrown
+          `}
           aria-pressed={field === sortField}
-          aria-label={`Sort by ${label} ${field === sortField ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}`}
+          aria-label={`Sort by ${label} ${
+            field === sortField ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'
+          }`}
         >
           {label} <span>{renderSortIcon(field)}</span>
         </button>
