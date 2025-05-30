@@ -224,7 +224,7 @@ export interface ProductInteface {
   key: string;
 }
 
-export type SortField = 'id' | 'name' | 'price' | 'type' | 'category';
+export type SortField = 'name' | 'price' | 'type';
 export type SortOrder = 'asc' | 'desc';
 export interface Pagination {
   offset: number;

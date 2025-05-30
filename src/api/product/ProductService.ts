@@ -18,7 +18,7 @@ class ProductService {
   private filteredProducts: ProductInteface[] = [];
 
   private searchTerm: string = '';
-  private sortField: SortField = 'id';
+  private sortField: SortField = 'id' as SortField;
   private sortOrder: SortOrder = 'asc';
   private filters: Filter = {};
   private pagination: Pagination = { offset: 0, limit: 10 };

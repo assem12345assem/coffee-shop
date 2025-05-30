@@ -27,14 +27,7 @@ const SearchComponent: ForwardRefRenderFunction<SearchComponentHandle, SearchCom
       placeholder={placeholder ?? 'Start typing here...'}
       value={value}
       onChange={handleChange}
-      className={className}
-      style={{
-        padding: '0.5rem',
-        width: '100%',
-        marginBottom: '1rem',
-        fontSize: '1rem',
-        ...style,
-      }}
+      className="bg-americanSilver border-2 border-coffeeBrown rounded-lg px-4 py-2 text-coffeeBrown placeholder:text-coffeeBrown focus:outline-none focus:border-rustBrown transition-colors duration-300 w-full max-w-[400px] text-lg"
     />
   );
 };

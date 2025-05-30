@@ -17,8 +17,10 @@ const FilterComponent: React.FC<FilterComponentProps> = ({ onFilterChange }) => 
   }, [isSale, selectedCategory, onFilterChange]);
 
   return (
-    <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem' }}>
+    <div className="mb-4 flex gap-4 max-[500px]:flex-col max-[500px]:items-start max-[500px]:w-full">
       <select
+        className="bg-transparent border-2 border-coffeeBrown rounded-lg px-4 py-2 text-coffeeBrown placeholder:text-coffeeBrown focus:outline-none focus:border-rustBrown transition-colors duration-300 w-[215px] text-lg
+             hover:bg-coffeeBrown hover:text-white max-[500px]:w-full"
         value={isSale === undefined ? '' : isSale ? 'true' : 'false'}
         onChange={(e) => {
           const val = e.target.value;
@@ -31,7 +33,12 @@ const FilterComponent: React.FC<FilterComponentProps> = ({ onFilterChange }) => 
         <option value="false">Not On Sale</option>
       </select>
 
-      <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value as CategoryType)}>
+      <select
+        className="bg-transparent border-2 border-coffeeBrown rounded-lg px-5 py-2 text-coffeeBrown placeholder:text-coffeeBrown focus:outline-none focus:border-rustBrown transition-colors duration-300 w-[220px] text-lg
+             hover:bg-coffeeBrown hover:text-white max-[500px]:w-full"
+        value={selectedCategory}
+        onChange={(e) => setSelectedCategory(e.target.value as CategoryType)}
+      >
         <option value="">All Categories</option>
         {Object.values(CategoryType).map((category) => (
           <option key={category} value={category}>
