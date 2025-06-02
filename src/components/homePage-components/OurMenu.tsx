@@ -21,7 +21,7 @@ function OurMenu() {
     return (
       <div
         className={`custom-arrow-next ${isDisabled ? 'arrow-disabled' : ''}`}
-        style={{ ...style } as React.CSSProperties}
+        style={style as React.CSSProperties}
         onClick={!isDisabled ? (onClick as React.MouseEventHandler<HTMLDivElement>) : undefined}
       >
         <div className="arrow-icon-container">
@@ -41,7 +41,7 @@ function OurMenu() {
     return (
       <div
         className={`custom-arrow-prev ${isDisabled ? 'arrow-disabled' : ''}`}
-        style={{ ...style } as React.CSSProperties}
+        style={style as React.CSSProperties}
         onClick={!isDisabled ? (onClick as React.MouseEventHandler<HTMLDivElement>) : undefined}
       >
         <div className="arrow-icon-container">
