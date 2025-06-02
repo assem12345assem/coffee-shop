@@ -3,7 +3,7 @@ import React, { useState, useImperativeHandle, forwardRef } from 'react';
 import type { SearchComponentHandle, SearchComponentProps } from '@/data/interfaces';
 
 const SearchComponent: ForwardRefRenderFunction<SearchComponentHandle, SearchComponentProps> = (
-  { placeholder, onSearchChange, className, style },
+  { placeholder, onSearchChange },
   ref
 ) => {
   const [value, setValue] = useState('');

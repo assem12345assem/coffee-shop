@@ -22,9 +22,7 @@ const LoginFormComponent: React.FC = () => {
   const emailRef: FormRefItem = useRef<InputHandle>(null);
   const passwordRef: FormRefItem = useRef<InputHandle>(null);
 
-  const handleSubmit: (e: FormEvent<HTMLFormElement>) => Promise<void> = async (
-    e: FormEvent<HTMLFormElement>
-  ): Promise<void> => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setApiErrorMessage(null);
     setShowSuccess(null);
