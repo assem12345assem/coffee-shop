@@ -1,18 +1,18 @@
-import type { ApiRoot, ClientResponse, Customer, CustomerDraft, CustomerToken } from '@commercetools/platform-sdk';
-import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
-import { ctpClient } from '@/api/commerceToolsClient';
-import { AuthData as AUTH } from '@/api/token/authData';
+import type {
+  ByProjectKeyCustomersRequestBuilder,
+  ClientResponse,
+  Customer,
+  CustomerDraft,
+  CustomerToken,
+} from '@commercetools/platform-sdk';
 import type { SignInResponse } from '@/data/interfaces';
+import { getApiRoot } from '@/utils/getApiRoot';
 
-const apiRoot: ApiRoot = createApiBuilderFromCtpClient(ctpClient);
+const customersEndpoint: ByProjectKeyCustomersRequestBuilder = getApiRoot().customers();
 
 export async function registerCustomer(customerDraft: CustomerDraft): Promise<SignInResponse> {
   try {
-    const response: ClientResponse<SignInResponse> = await apiRoot
-      .withProjectKey({ projectKey: AUTH.projectKey })
-      .customers()
-      .post({ body: customerDraft })
-      .execute();
+    const response: ClientResponse<SignInResponse> = await customersEndpoint.post({ body: customerDraft }).execute();
     return response.body;
   } catch (error) {
     console.error('Failed to register user:', error);
@@ -22,8 +22,7 @@ export async function registerCustomer(customerDraft: CustomerDraft): Promise<Si
 
 export const loginCustomer = async (email: string, password: string): Promise<SignInResponse> => {
   try {
-    const response: ClientResponse<SignInResponse> = await apiRoot
-      .withProjectKey({ projectKey: AUTH.projectKey })
+    const response: ClientResponse<SignInResponse> = await getApiRoot()
       .login()
       .post({
         body: {
@@ -40,12 +39,7 @@ export const loginCustomer = async (email: string, password: string): Promise<Si
 };
 export const getCustomerById = async (customerId: string): Promise<Customer> => {
   try {
-    const response: ClientResponse<Customer> = await apiRoot
-      .withProjectKey({ projectKey: AUTH.projectKey })
-      .customers()
-      .withId({ ID: customerId })
-      .get()
-      .execute();
+    const response: ClientResponse<Customer> = await customersEndpoint.withId({ ID: customerId }).get().execute();
     return response.body;
   } catch (error) {
     console.error('Failed to fetch a customer:', error);
@@ -54,9 +48,7 @@ export const getCustomerById = async (customerId: string): Promise<Customer> => 
 };
 export const requestPasswordResetToken = async (emailUser: string) => {
   try {
-    const response: ClientResponse<CustomerToken> = await apiRoot
-      .withProjectKey({ projectKey: AUTH.projectKey })
-      .customers()
+    const response: ClientResponse<CustomerToken> = await customersEndpoint
       .passwordToken()
       .post({
         body: {
@@ -72,9 +64,7 @@ export const requestPasswordResetToken = async (emailUser: string) => {
 };
 export const resetCustomerPassword = async (token: string, password: string): Promise<Customer> => {
   try {
-    const response: ClientResponse<Customer> = await apiRoot
-      .withProjectKey({ projectKey: AUTH.projectKey })
-      .customers()
+    const response: ClientResponse<Customer> = await customersEndpoint
       .passwordReset()
       .post({
         body: {
