@@ -20,10 +20,7 @@ export async function registerCustomer(customerDraft: CustomerDraft): Promise<Si
   }
 }
 
-export const loginCustomer: (email: string, password: string) => Promise<SignInResponse> = async (
-  email: string,
-  password: string
-): Promise<SignInResponse> => {
+export const loginCustomer = async (email: string, password: string): Promise<SignInResponse> => {
   try {
     const response: ClientResponse<SignInResponse> = await apiRoot
       .withProjectKey({ projectKey: AUTH.projectKey })
