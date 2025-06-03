@@ -13,6 +13,7 @@ import { ROUTES } from '@/data/routes';
 import Cart from '@/pages/Cart';
 import NotFoundPage from '@/pages/NotFoundPage';
 import Profile from './pages/Profile';
+import DetailedProduct from './pages/DetailedProduct';
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
       {
         path: ROUTES.products,
         element: <ProductPage />,
+      },
+      {
+        path: `${ROUTES.products}/:id`,
+        element: <DetailedProduct />,
       },
       {
         path: ROUTES.about,
