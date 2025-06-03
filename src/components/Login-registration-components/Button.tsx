@@ -1,4 +1,4 @@
-import React, { type ReactElement } from 'react';
+import React from 'react';
 
 interface ButtonProps {
   type?: 'button' | 'submit' | 'reset';
@@ -9,13 +9,7 @@ interface ButtonProps {
   variant?: string;
 }
 
-const Button: React.FC<ButtonProps> = ({
-  type = 'button',
-  onClick,
-  label,
-  className = '',
-  disabled = false,
-}: ButtonProps): ReactElement => {
+const Button: React.FC<ButtonProps> = ({ type = 'button', onClick, label, className = '', disabled = false }) => {
   return (
     <button
       type={type}

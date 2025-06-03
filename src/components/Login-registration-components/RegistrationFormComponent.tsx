@@ -49,8 +49,6 @@ const RegistrationFormComponent = () => {
   const shippingPostalCodeRef: FormRefItem = useRef<InputHandle>(null);
   const shippingCountryRef: FormRefItem = useRef<InputHandle>(null);
 
-  const country: string = countryRef.current?.getValue() ?? '';
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setApiErrorMessage(null);

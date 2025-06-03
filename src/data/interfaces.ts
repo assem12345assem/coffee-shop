@@ -199,3 +199,79 @@ export interface SessionUser {
   customerId: string;
   customerVersion: string;
 }
+
+export enum CoffeeType {
+  hot = 'Hot',
+  iced = 'Cold',
+}
+export enum CategoryType {
+  normal_coffee = 'Regular Coffee',
+  iced_coffee = 'Chilled Coffee',
+  luxury_coffee = 'Luxury Coffee',
+}
+export interface ProductInteface {
+  id: number;
+  name: string;
+  price: number;
+  description: string;
+  type: CoffeeType;
+  ingredients: string[];
+  is_sale: boolean;
+  sale_percent: number;
+  category: CategoryType;
+  images: string[];
+  sku: string;
+  key: string;
+}
+
+export type SortField = 'name' | 'price' | 'type';
+export type SortOrder = 'asc' | 'desc';
+export interface Pagination {
+  offset: number;
+  limit: number;
+}
+
+export interface Filter {
+  category?: string;
+  isSale?: boolean;
+  type?: 'hot' | 'cold';
+}
+
+export type Subscriber = VoidFunction;
+export type SortValues = 1 | -1;
+export interface PaginationHandle {
+  goToPage: (page: number) => void;
+  nextPage: () => void;
+  prevPage: () => void;
+  reset: () => void;
+  getCurrentPage: () => number;
+  getPageSize: () => number;
+  setPageSize: (size: number) => void;
+}
+
+export interface PaginationProps {
+  totalPages: number;
+  initialPage?: number;
+  initialPageSize?: number;
+  onPageChange?: (page: number) => void;
+  onPageSizeChange?: (size: number) => void;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export interface SearchComponentHandle {
+  getValue: () => string;
+  clear: () => void;
+}
+
+export interface SearchComponentProps {
+  placeholder?: string;
+  onSearchChange?: (value: string) => void;
+  className?: string;
+  style?: React.CSSProperties;
+}
+export interface SortingComponentProps {
+  initialField?: SortField;
+  initialOrder?: SortOrder;
+  onSortChange?: (field: SortField, order: SortOrder) => void;
+}

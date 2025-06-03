@@ -6,8 +6,6 @@ import {
   type HttpMiddlewareOptions,
 } from '@commercetools/sdk-client-v2';
 
-const fetchApi: typeof fetch = fetch;
-
 const projectKey: string = AUTH.projectKey;
 
 const authMiddlewareOptions: AuthMiddlewareOptions = {
@@ -18,12 +16,12 @@ const authMiddlewareOptions: AuthMiddlewareOptions = {
     clientSecret: AUTH.clientSecret,
   },
   scopes: [AUTH.scopes],
-  fetch: fetchApi,
+  fetch,
 };
 
 const httpMiddlewareOptions: HttpMiddlewareOptions = {
   host: AUTH.baseUrl,
-  fetch: fetchApi,
+  fetch,
 };
 
 export const ctpClient: Client = new ClientBuilder()
