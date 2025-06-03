@@ -19,7 +19,7 @@ const ProductComponent: React.FC<Props> = ({ product }) => {
   const isOnSale = product.is_sale && product.sale_percent;
 
   return (
-    <div className="bg-coffeeBrown rounded-[20px] p-[15px] w-[260px] h-[444px] relative hover:shadow-lg transition-shadow flex flex-col">
+    <div className="bg-coffeeBrown rounded-[20px] p-[15px] w-[260px] h-[444px] relative transition-transform transition-shadow transition-colors duration-500 ease-in-out transform shadow-md hover:shadow-2xl hover:scale-[1.03] hover:bg-coffeeDark/80 flex flex-col">
       <div className="mb-2 h-[148px] bg-coffeeDark rounded-[20px] overflow-hidden flex items-center justify-center">
         {product.images?.length > 0 ? (
           <img
@@ -64,7 +64,8 @@ const ProductComponent: React.FC<Props> = ({ product }) => {
           )}
         </div>
       </div>
-      <div className=" w-full">
+
+      <div className="w-full">
         <Link
           to={`/products/${product.id}`}
           className="block w-full bg-rustBrown text-white px-4 py-2 rounded-lg text-center hover:bg-rustDark transition-colors"
