@@ -1,20 +1,18 @@
 import React, { useState, useRef } from 'react';
 import ourMenuBg from '@/assets/ourMenu.png';
 import { Link } from 'react-router-dom';
-import OurMenuCoffeeCard from './OurMenuCoffeeCard';
-import cappucina from '@/assets/cappucina.jpg';
-import moca from '@/assets/moca.jpg';
-import late from '@/assets/latte.jpg';
-import coldjava from '@/assets/coldjava.jpg';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import '@/styles/slider.css';
+import { useProducts } from '@/api/product/useProduct';
+import ProductComponent from '../Product-components/ProductComponent';
 
 function OurMenu() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliderRef = useRef<Slider>(null);
   const totalSlides = 7;
+  const { products } = useProducts();
 
   const NextArrow: React.FC<React.HTMLProps<HTMLDivElement>> = ({ style, onClick }) => {
     const isDisabled = currentSlide >= totalSlides - 4;
@@ -85,59 +83,6 @@ function OurMenu() {
     ],
   };
 
-  const coffeeItems = [
-    {
-      img: cappucina,
-      title: 'Cappuccino',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa, fermentum id id vitae, integer fermentum tellus.',
-      price: 8.6,
-    },
-    {
-      img: moca,
-      title: 'Mocha',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa, fermentum id id vitae, integer fermentum tellus.',
-      price: 7.8,
-    },
-    {
-      img: late,
-      title: 'Latte',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa, fermentum id id vitae, integer fermentum tellus.',
-      price: 6.5,
-    },
-    {
-      img: coldjava,
-      title: 'Cold Brew',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa, fermentum id id vitae, integer fermentum tellus.',
-      price: 5.9,
-    },
-
-    {
-      img: cappucina,
-      title: 'Espresso',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa, fermentum id id vitae, integer fermentum tellus.',
-      price: 4.2,
-    },
-    {
-      img: moca,
-      title: 'Americano',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa, fermentum id id vitae, integer fermentum tellus.',
-      price: 3.8,
-    },
-    {
-      img: late,
-      title: 'Macchiato',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa, fermentum id id vitae, integer fermentum tellus.',
-      price: 5.5,
-    },
-  ];
-
   return (
     <div
       className="w-full bg-cover bg-center relative -top-[110px] left-0"
@@ -164,9 +109,9 @@ function OurMenu() {
 
         <div className="mt-11 custom-slider">
           <Slider ref={sliderRef} {...settings}>
-            {coffeeItems.map((item, index) => (
+            {products.map((product, index) => (
               <div key={index} className="px-2 ">
-                <OurMenuCoffeeCard {...item} />
+                <ProductComponent product={product} />
               </div>
             ))}
           </Slider>
