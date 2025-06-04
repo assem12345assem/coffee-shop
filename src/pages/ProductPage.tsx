@@ -72,7 +72,7 @@ const ProductPage: React.FC = () => {
   );
 
   return (
-    <div className="w-full  bg-cover bg-center py-[100px]" style={{ backgroundImage: `url(${hero})` }}>
+    <div className="w-full  bg-lightCream">
       <div className="w-full flex justify-between items-baseline gap-4 mb-8 px-4 max-[1180px]:flex-col max-[1130px]:items-center">
         <SearchComponent ref={searchRef} placeholder="Search by name..." onSearchChange={handleSearchChange} />
         <div className="flex gap-4 items-center max-[800px]:flex-col max-[800px]:items-center">
