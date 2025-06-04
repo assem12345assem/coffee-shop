@@ -223,7 +223,9 @@ export interface ProductInteface {
   sku: string;
   key: string;
 }
-
+export interface ProductSliderProps {
+  product: ProductInteface;
+}
 export type SortField = 'name' | 'price' | 'type';
 export type SortOrder = 'asc' | 'desc';
 export interface Pagination {

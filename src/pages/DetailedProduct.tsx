@@ -4,13 +4,14 @@ import { productService } from '@/api/product/ProductService';
 import type { ProductInteface } from '@/data/interfaces';
 import { CoffeeType } from '@/data/interfaces';
 import { simplifySingleProduct } from '@/utils/productUtils';
+import ProductSlider from '@/components/Product-components/ProductSlider';
 
 const DetailedProduct: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<ProductInteface | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showAllImages, setShowAllImages] = useState(false);
+  const [showSlider, setShowSlider] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,21 +36,20 @@ const DetailedProduct: React.FC = () => {
     fetchProduct();
   }, [id]);
 
+  const calculateDiscountPrice = () => {
+    if (!product?.is_sale || !product?.sale_percent) return product?.price || 0;
+    return product.price * (1 - product.sale_percent / 100);
+  };
+
   if (loading) return <div className="p-6">Loading...</div>;
   if (error || !product) return <div className="p-6 text-red-500">{error || 'Product not available.'}</div>;
-
-  const calculateDiscountPrice = () => {
-    if (!product.is_sale || !product.sale_percent) return product.price;
-    const discountAmount = product.price * (product.sale_percent / 100);
-    return product.price - discountAmount;
-  };
 
   const originalPrice = product.price.toFixed(2);
   const discountPrice = calculateDiscountPrice().toFixed(2);
   const isOnSale = product.is_sale && product.sale_percent;
 
   return (
-    <div className="bg-lightCream py-10 px-4 sm:px-6 md:px-10 lg:px-20">
+    <div className="bg-lightCream py-10 px-4 sm:px-6 md:px-10 lg:px-20 relative">
       <div className="max-w-screen-xl mx-auto mb-6 relative">
         <button
           onClick={() => navigate('/products')}
@@ -70,6 +70,7 @@ const DetailedProduct: React.FC = () => {
           <span className="absolute bottom-[-3px] right-[-3px] w-[calc(100%+6px)] h-[calc(100%+6px)] border-b-2 border-r-2 border-white rounded-full pointer-events-none"></span>
         </button>
       </div>
+
       <div className="max-w-screen-xl mx-auto flex flex-col lg:flex-row gap-10 items-start">
         <div className="flex-1 space-y-4 md:mr-6">
           <h1 className="text-3xl sm:text-4xl font-bold text-black">{product.name}</h1>
@@ -95,48 +96,51 @@ const DetailedProduct: React.FC = () => {
               {Object.keys(CoffeeType).find((key) => CoffeeType[key as keyof typeof CoffeeType] === product.type) ||
                 'Unknown'}
             </p>
-
             {product.ingredients.length > 0 && (
               <p>
                 <span className="font-semibold">Ingredients:</span> {product.ingredients.join(', ')}
               </p>
             )}
-
             <p className="whitespace-pre-line text-black pt-5">
               <span className="font-semibold">Description:</span> {product.description}
             </p>
           </div>
         </div>
+
         <div className="w-full md:w-[400px] lg:w-[500px] p-2 md:p-0 flex justify-center mx-auto">
-          <img
-            src={product.images[0]}
-            alt={`${product.name} main image`}
-            className="w-full max-w-[400px] h-auto rounded-lg shadow-md object-cover"
-          />
+          <div className="relative w-full max-w-[400px] group">
+            <img
+              src={product.images[0]}
+              alt={`${product.name} main image`}
+              className="w-full h-auto rounded-lg shadow-md object-cover"
+            />
+            <div
+              onClick={() => setShowSlider(true)}
+              className="cursor-pointer absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 before:absolute before:inset-0 before:bg-black before:opacity-0 hover:before:opacity-40 before:rounded-lg before:transition-opacity before:duration-300"
+            >
+              <span className="relative z-10 text-white font-bold text-lg">Show more images</span>
+            </div>
+          </div>
         </div>
       </div>
-
-      {product.images.length > 1 && (
-        <div className="max-w-screen-xl mx-auto mt-10 text-center">
-          {showAllImages && (
-            <div className="flex flex-wrap justify-center gap-4 mb-4">
-              {product.images.slice(1).map((imgUrl, index) => (
-                <img
-                  key={index}
-                  src={imgUrl}
-                  alt={`${product.name} image ${index + 2}`}
-                  className="w-48 h-48 object-cover rounded-md shadow-md"
-                />
-              ))}
-            </div>
-          )}
+      {showSlider && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div onClick={() => setShowSlider(false)} className="fixed inset-0 bg-black bg-opacity-90 cursor-pointer" />
 
           <button
-            onClick={() => setShowAllImages((prev) => !prev)}
-            className="text-coffeebrown font-semibold underline transition"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowSlider(false);
+            }}
+            className="absolute top-4 right-4 text-white text-3xl z-50 hover:text-gray-300"
+            aria-label="Close gallery"
           >
-            {showAllImages ? 'Hide additional images' : 'Show more images'}
+            &times;
           </button>
+
+          <div className="relative w-full max-w-4xl z-40" onClick={(e) => e.stopPropagation()}>
+            <ProductSlider product={product} />
+          </div>
         </div>
       )}
     </div>
