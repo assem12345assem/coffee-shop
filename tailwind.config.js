@@ -16,6 +16,7 @@ export default {
         rustBrown: '#A0583C',
         creamLight: '#FFFADA',
         whiteCoffee: '#E3D9D5',
+        lightCream: ' #e0ccc4',
       },
       fontFamily: {
         secondary: ['Inter', 'sans-serif'],

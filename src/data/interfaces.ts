@@ -210,7 +210,7 @@ export enum CategoryType {
   luxury_coffee = 'Luxury Coffee',
 }
 export interface ProductInteface {
-  id: number;
+  id: string;
   name: string;
   price: number;
   description: string;
