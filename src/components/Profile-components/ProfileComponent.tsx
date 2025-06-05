@@ -48,9 +48,11 @@ const ProfileComponent: React.FC = () => {
     email: validateEmail,
     streetName: validateStreet,
     city: validateCity,
-    postalCode: (val, index) => validatePostalCode(val, addressRefs.current[index]?.country?.getValue() ?? ''),
+    postalCode: (val: string, index?: number) =>
+      validatePostalCode(val, addressRefs.current[index!]?.country?.getValue() ?? ''),
     country: validateCountry,
   };
+  const [originalCustomer, setOriginalCustomer] = useState<Customer | null>(null);
 
   useEffect(() => {
     const fetchCustomer = async () => {
@@ -143,6 +145,36 @@ const ProfileComponent: React.FC = () => {
         : prev
     );
   };
+  const resetInputFields = () => {
+    Object.keys(customerInputRefs.current).forEach((field) => {
+      customerInputRefs.current[field]?.setValueExternally(originalCustomer?.[field] ?? '');
+    });
+
+    customer.addresses.forEach((address, index) => {
+      Object.keys(addressRefs.current[index] || {}).forEach((field) => {
+        if (field === 'country') {
+          const originalCountry = originalCustomer?.addresses[index]?.country;
+          addressRefs.current[index]['country']?.setValueExternally(
+            originalCountry ? denormalizeCountryCode(originalCountry) : ''
+          );
+
+          setTimeout(() => {
+            addressRefs.current[index]['postalCode']?.setErrorExternally(null);
+          }, 0);
+        } else {
+          addressRefs.current[index][field]?.setValueExternally(originalCustomer?.addresses[index]?.[field] ?? '');
+        }
+      });
+    });
+  };
+
+  const handleCancel = () => {
+    if (originalCustomer) {
+      setCustomer(originalCustomer);
+      resetInputFields();
+    }
+    setIsEditing(false);
+  };
   return (
     <div className="profile-page">
       <div className="profile-container">
@@ -153,7 +185,10 @@ const ProfileComponent: React.FC = () => {
             <Button
               type="button"
               label="Edit Profile"
-              onClick={() => setIsEditing(true)}
+              onClick={() => {
+                setOriginalCustomer(JSON.parse(JSON.stringify(customer)));
+                setIsEditing(true);
+              }}
               className="bg-LightTaupe hover:bg-rustBrown text-Temptress mb-4"
             />
           )}
@@ -180,7 +215,7 @@ const ProfileComponent: React.FC = () => {
                 <Button
                   type="button"
                   label="Cancel"
-                  onClick={() => setIsEditing(false)}
+                  onClick={handleCancel}
                   className="border-creamLight text-black hover:bg-rustBrown"
                 />
                 <Button

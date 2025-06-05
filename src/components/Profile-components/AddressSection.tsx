@@ -5,6 +5,7 @@ import Input from '@/components/Login-registration-components/Input';
 import { validateCity, validateCountry, validatePostalCode, validateStreet } from '@/utils/validation';
 import CountryInput from '@/components/Login-registration-components/CountryInput';
 import { denormalizeCountryCode, normalizeCountryInput } from '@/utils/customerUtils';
+import type { Address } from '@commercetools/platform-sdk';
 
 interface AddressSectionProps {
   customer: Customer;
@@ -44,7 +45,11 @@ const AddressSection: React.FC<AddressSectionProps> = ({
               }}
               key={`${index}-${field}`}
               label={field.replace(/^\w/, (c) => c.toUpperCase())}
-              initialValue={address[field] ?? ''}
+              initialValue={
+                typeof address[field as keyof Address] === 'string'
+                  ? address[field as keyof Address]
+                  : String(address[field as keyof Address] ?? '')
+              }
               onChange={(val) =>
                 setCustomer((prev) =>
                   prev
@@ -79,6 +84,15 @@ const AddressSection: React.FC<AddressSectionProps> = ({
             onChange={(selectedCountry) => {
               if (!addressRefs.current[index]) addressRefs.current[index] = {};
               addressRefs.current[index]['country']?.setValueExternally(selectedCountry);
+
+              const currentPostal = addressRefs.current[index]?.postalCode?.getValue() ?? '';
+              const error = validatePostalCode(currentPostal, selectedCountry);
+
+              console.log('Postal Code:', currentPostal);
+              console.log('Selected Country:', selectedCountry);
+              console.log('Validation Error:', error);
+
+              addressRefs.current[index]?.postalCode?.setErrorExternally(error);
 
               setCustomer((prev) =>
                 prev

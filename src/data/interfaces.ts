@@ -2,6 +2,7 @@ import type { Cart } from '@commercetools/platform-sdk/dist/declarations/src/gen
 import type { Customer } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
 import type { ChangeEvent, ForwardRefExoticComponent, PropsWithoutRef, RefAttributes, RefObject } from 'react';
 import type React from 'react';
+import type { CustomFields } from '@commercetools/platform-sdk';
 
 export interface Country {
   code: string;
@@ -141,6 +142,7 @@ export interface InputHandle {
   setValueExternally: (value: string) => void;
   triggerValidation?: () => void;
   initialValue?: StringOrNull;
+  setErrorExternally?: () => void;
 }
 export interface InputProps {
   label: string;
@@ -150,7 +152,7 @@ export interface InputProps {
   className?: string;
   onChange?: (val: string) => void;
   validate?: (value: string) => string | null;
-  initialValue?: string;
+  initialValue?: string | CustomFields | undefined;
   readOnly?: boolean;
 }
 export type RefInputType = ForwardRefExoticComponent<PropsWithoutRef<InputProps> & RefAttributes<InputHandle>>;
@@ -279,4 +281,11 @@ export interface SortingComponentProps {
   initialField?: SortField;
   initialOrder?: SortOrder;
   onSortChange?: (field: SortField, order: SortOrder) => void;
+}
+export interface PersonalInfoProps {
+  customerInputRefs: React.MutableRefObject<{ [key: string]: any }>;
+  customer: Customer;
+  handleInputChange: (field: string, value: string) => void;
+  validationFunctions: Record<string, (...args: any[]) => string | null>; // Accepts multiple arguments
+  isEditing: boolean;
 }

@@ -26,6 +26,7 @@ const Input: RefInputType = forwardRef<InputHandle, InputProps>(
         setValue(val);
         setError(validate?.(val) ?? '');
       },
+      setErrorExternally: (errorMessage: string) => setError(errorMessage),
       triggerValidation: () => {
         setError(validate?.(value) ?? '');
       },
