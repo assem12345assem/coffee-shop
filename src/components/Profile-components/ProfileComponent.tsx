@@ -28,6 +28,8 @@ import 'toastify-js/src/toastify.css';
 import { generateAddressActions, generatePersonalInfoActions, showToast } from '@/utils/profileUtils';
 import '@/styles/profile.css';
 import ProfileHeader from '@/components/Profile-components/ProfileHeader';
+import PersonalInfoSection from '@/components/Profile-components/PersonalInfoSection';
+import AddressSection from '@/components/Profile-components/AddressSection';
 
 const ProfileComponent: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -157,146 +159,21 @@ const ProfileComponent: React.FC = () => {
           )}
 
           <form onSubmit={handleSubmit}>
-            <div className="mb-8">
-              <h2 className="section-title">Personal Information</h2>
+            <PersonalInfoSection
+              customerInputRefs={customerInputRefs}
+              customer={customer}
+              handleInputChange={handleInputChange}
+              validationFunctions={validationFunctions}
+              isEditing={isEditing}
+            />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {['firstName', 'lastName', 'dateOfBirth', 'email'].map((name) => (
-                  <Input
-                    ref={(el) => (customerInputRefs.current[name] = el)}
-                    key={name}
-                    label={name.replace(/^\w/, (c) => c.toUpperCase())}
-                    type={name === 'dateOfBirth' ? 'date' : 'text'}
-                    initialValue={
-                      name === 'dateOfBirth'
-                        ? customer.dateOfBirth
-                          ? new Date(customer.dateOfBirth).toISOString().split('T')[0]
-                          : ''
-                        : (customer[name] ?? '')
-                    }
-                    onChange={(val) => handleInputChange(name, val)}
-                    validate={validationFunctions[name]}
-                    readOnly={!isEditing}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className="mb-8">
-              <h2 className="section-title">Addresses</h2>
-
-              <div className="flex flex-col gap-8">
-                {customer.addresses.map((address, index) => (
-                  <div key={index}>
-                    <div>
-                      <h3>Address {index + 1}</h3>
-                      <div className="flex justify-between items-center">
-                        {customer.defaultBillingAddressId === address.id && (
-                          <span className="text-sm text-semiGreen">Default Billing Address</span>
-                        )}
-                        {customer.defaultShippingAddressId === address.id && (
-                          <span className="text-sm text-semiGreen">Default Shipping Address</span>
-                        )}
-                      </div>
-                    </div>
-                    {['streetName', 'city', 'postalCode'].map((field) => (
-                      <Input
-                        ref={(el) => {
-                          if (!addressRefs.current[index]) addressRefs.current[index] = {};
-                          addressRefs.current[index][field] = el;
-                        }}
-                        key={`${index}-${field}`}
-                        label={field.replace(/^\w/, (c) => c.toUpperCase())}
-                        initialValue={address[field] ?? ''}
-                        onChange={(val) =>
-                          setCustomer((prev) =>
-                            prev
-                              ? {
-                                  ...prev,
-                                  addresses: prev.addresses.map((addr, addrIndex) =>
-                                    addrIndex === index ? { ...addr, [field]: val } : addr
-                                  ),
-                                }
-                              : prev
-                          )
-                        }
-                        validate={(val) => {
-                          if (field === 'postalCode') {
-                            return validatePostalCode(val, addressRefs.current[index]?.country?.getValue() ?? '');
-                          } else if (field === 'streetName') {
-                            return validateStreet(val);
-                          } else if (field === 'city') {
-                            return validateCity(val);
-                          }
-
-                          return null;
-                        }}
-                        readOnly={!isEditing}
-                      />
-                    ))}
-
-                    <CountryInput
-                      ref={(el) => {
-                        if (!addressRefs.current[index]) addressRefs.current[index] = {};
-                        addressRefs.current[index]['country'] = el;
-                      }}
-                      label="Country"
-                      placeholder="Select a country"
-                      initialValue={isEditing ? address.country : denormalizeCountryCode(address.country)}
-                      onChange={(selectedCountry) => {
-                        if (!addressRefs.current[index]) addressRefs.current[index] = {};
-                        addressRefs.current[index]['country']?.setValueExternally(selectedCountry);
-
-                        const currentPostal = addressRefs.current[index]?.postalCode?.getValue() ?? '';
-                        const error = validatePostalCode(currentPostal, selectedCountry);
-
-                        if (error) {
-                          setTimeout(() => {
-                            addressRefs.current[index]?.postalCode?.setValueExternally(currentPostal);
-                          }, 0);
-                        }
-
-                        setCustomer((prev) =>
-                          prev
-                            ? {
-                                ...prev,
-                                addresses: prev.addresses.map((addr, addrIndex) =>
-                                  addrIndex === index
-                                    ? { ...addr, country: normalizeCountryInput(selectedCountry) }
-                                    : addr
-                                ),
-                              }
-                            : prev
-                        );
-                      }}
-                      validate={validateCountry}
-                      readOnly={!isEditing}
-                    />
-                    {isEditing && (
-                      <div className="flex flex-col gap-2 mt-4">
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            checked={customer.defaultBillingAddressId === address.id}
-                            onChange={() => handleSetDefaultAddress('billing', address.id)}
-                          />
-                          <label className="text-sm text-creamLight">Set as Default Billing Address</label>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            checked={customer.defaultShippingAddressId === address.id}
-                            onChange={() => handleSetDefaultAddress('shipping', address.id)}
-                          />
-                          <label className="text-sm text-creamLight">Set as Default Shipping Address</label>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
+            <AddressSection
+              customer={customer}
+              addressRefs={addressRefs}
+              setCustomer={setCustomer}
+              isEditing={isEditing}
+              handleSetDefaultAddress={handleSetDefaultAddress}
+            />
 
             {isEditing && (
               <div className="flex flex-col sm:flex-row justify-end gap-4 mt-10">
