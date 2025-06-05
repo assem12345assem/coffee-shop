@@ -4,15 +4,16 @@ import type { HandleInputType, InputHandle, InputProps, RefInputType, RefPropTyp
 
 const Input: RefInputType = forwardRef<InputHandle, InputProps>(
   (
-    { label, type = 'text', placeholder, validate, onChange, className }: InputProps,
+    { label, type = 'text', placeholder, validate, onChange, className, initialValue, readOnly = false }: InputProps,
     ref: RefPropType
   ): ReactElement => {
-    const [value, setValue] = useState('');
+    const [value, setValue] = useState(initialValue ?? '');
     const [error, setError] = useState('');
 
     const handleChange: HandleInputType = (e: ChangeEvent<HTMLInputElement>): void => {
-      const newValue = e.target.value;
+      if (readOnly) return; // Prevent changes when readOnly is active
 
+      const newValue = e.target.value;
       setValue(newValue);
       setError(validate?.(newValue) ?? '');
       onChange?.(newValue);
@@ -40,6 +41,7 @@ const Input: RefInputType = forwardRef<InputHandle, InputProps>(
           value={value}
           onChange={handleChange}
           onBlur={() => setError(validate?.(value) ?? '')}
+          readOnly={readOnly} // Pass the readOnly prop here
           required
         />
         {error && <p className="text-red-500 text-sm mt-1">{error}</p>}

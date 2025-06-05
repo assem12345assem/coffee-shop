@@ -140,6 +140,7 @@ export interface InputHandle {
   getError: StringFunction;
   setValueExternally: (value: string) => void;
   triggerValidation?: () => void;
+  initialValue?: StringOrNull;
 }
 export interface InputProps {
   label: string;
@@ -149,6 +150,8 @@ export interface InputProps {
   className?: string;
   onChange?: (val: string) => void;
   validate?: (value: string) => string | null;
+  initialValue?: string;
+  readOnly?: boolean;
 }
 export type RefInputType = ForwardRefExoticComponent<PropsWithoutRef<InputProps> & RefAttributes<InputHandle>>;
 export type HandleInputType = (e: ChangeEvent<HTMLInputElement>) => void;
