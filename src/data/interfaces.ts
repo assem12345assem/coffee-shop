@@ -164,6 +164,7 @@ export type PasswordInputProps = {
   className?: string;
   showForgotPassword?: boolean;
   placeholder?: string;
+  label?: string;
 };
 export type RefPasswordInputType = ForwardRefExoticComponent<
   PropsWithoutRef<PasswordInputProps> & RefAttributes<InputHandle>

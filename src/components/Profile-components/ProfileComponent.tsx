@@ -24,6 +24,7 @@ import '@/styles/profile.css';
 import ProfileHeader from '@/components/Profile-components/ProfileHeader';
 import PersonalInfoSection from '@/components/Profile-components/PersonalInfoSection';
 import AddressSection from '@/components/Profile-components/AddressSection';
+import { PasswordChangeButton } from '@/components/Profile-components/PasswordChangeButton';
 
 const ProfileComponent: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -147,7 +148,7 @@ const ProfileComponent: React.FC = () => {
     customer.addresses.forEach((address, index) => {
       const addressRef = addressRefs.current[index];
 
-      if (!addressRef) return; // ✅ Avoid accessing undefined references
+      if (!addressRef) return;
 
       Object.keys(addressRef).forEach((field) => {
         if (field === 'country') {
@@ -184,6 +185,9 @@ const ProfileComponent: React.FC = () => {
         <ProfileHeader />
 
         <div className="bg-coffeeBrown rounded-lg shadow-xl overflow-hidden p-6 sm:p-8">
+          <div className="my-3">
+            <PasswordChangeButton />
+          </div>
           {!isEditing && (
             <Button
               type="button"
