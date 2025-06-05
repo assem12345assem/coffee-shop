@@ -25,6 +25,8 @@ import type { InputHandle } from '@/data/interfaces';
 import { countries } from '@/data/interfaces';
 import { updateCustomer } from '@/api/profile/update';
 import type { CustomerUpdate } from '@commercetools/platform-sdk';
+import Toastify from 'toastify-js';
+import 'toastify-js/src/toastify.css';
 
 const ProfileComponent: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -133,11 +135,29 @@ const ProfileComponent: React.FC = () => {
   const updateCustomerProfile = async (payload: any) => {
     try {
       const response = await updateCustomer(customer, payload);
+
+      Toastify({
+        text: 'Profile updated successfully!',
+        duration: 3000,
+        gravity: 'top',
+        position: 'center',
+        backgroundColor: '#28a745',
+        stopOnFocus: true,
+      }).showToast();
+
       setCustomer(response);
       setSuccessMessage('Profile updated successfully!');
       setIsEditing(false);
     } catch (error) {
       console.error('Error updating customer:', error);
+      Toastify({
+        text: 'Failed to update profile. Please try again.',
+        duration: 3000,
+        gravity: 'top',
+        position: 'center',
+        backgroundColor: '#dc3545',
+        stopOnFocus: true,
+      }).showToast();
       setErrorMessage('Failed to update profile. Please try again.');
     } finally {
       setLoading(false);
@@ -256,9 +276,17 @@ const ProfileComponent: React.FC = () => {
                               : prev
                           )
                         }
-                        validate={(val) =>
-                          validatePostalCode(val, addressRefs.current[index]?.country?.getValue() ?? '')
-                        }
+                        validate={(val) => {
+                          if (field === 'postalCode') {
+                            return validatePostalCode(val, addressRefs.current[index]?.country?.getValue() ?? '');
+                          } else if (field === 'streetName') {
+                            return validateStreet(val);
+                          } else if (field === 'city') {
+                            return validateCity(val);
+                          }
+
+                          return null; // Default case (in case a field is missing)
+                        }}
                         readOnly={!isEditing}
                       />
                     ))}
