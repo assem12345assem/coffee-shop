@@ -22,11 +22,12 @@ import {
 } from '@/utils/validation';
 import CountryInput from '@/components/Login-registration-components/CountryInput';
 import type { InputHandle } from '@/data/interfaces';
-import { countries } from '@/data/interfaces';
 import { updateCustomer } from '@/api/profile/update';
 import type { CustomerUpdate } from '@commercetools/platform-sdk';
-import Toastify from 'toastify-js';
 import 'toastify-js/src/toastify.css';
+import { generateAddressActions, generatePersonalInfoActions, showToast } from '@/utils/profileUtils';
+import '@/styles/profile.css';
+import ProfileHeader from '@/components/Profile-components/ProfileHeader';
 
 const ProfileComponent: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -72,49 +73,11 @@ const ProfileComponent: React.FC = () => {
     return <div>Loading customer data...</div>;
   }
   const generateUpdatedCustomerPayload = (customer: Customer): CustomerUpdate | null => {
-    const actions: CustomerUpdateAction[] = [];
+    const actions: CustomerUpdateAction[] = [
+      ...generatePersonalInfoActions(customerInputRefs),
+      ...generateAddressActions(customer, addressRefs),
+    ];
 
-    // Check personal information updates
-    ['firstName', 'lastName', 'dateOfBirth', 'email'].forEach((field) => {
-      const inputRef = customerInputRefs.current[field];
-      if (inputRef && inputRef.getValue() !== inputRef.initialValue) {
-        const actionName =
-          field === 'dateOfBirth'
-            ? 'setDateOfBirth'
-            : field === 'email'
-              ? 'changeEmail'
-              : `set${field.charAt(0).toUpperCase()}${field.slice(1)}`;
-        actions.push({
-          action: actionName,
-          [field]: inputRef.getValue(),
-        });
-      }
-    });
-
-    // Check for address updates
-    customer.addresses.forEach((address, index) => {
-      const updatedAddress: Record<string, string> = {};
-      let hasChanges = false;
-
-      ['streetName', 'city', 'postalCode', 'country'].forEach((field) => {
-        const inputRef = addressRefs.current[index]?.[field];
-        if (inputRef && inputRef.getValue() !== inputRef.initialValue) {
-          updatedAddress[field] =
-            field === 'country' ? normalizeCountryInput(inputRef.getValue()) : inputRef.getValue();
-          hasChanges = true;
-        }
-      });
-
-      if (hasChanges) {
-        actions.push({
-          action: 'changeAddress',
-          addressId: address.id,
-          address: updatedAddress,
-        });
-      }
-    });
-
-    // Check for default billing/shipping changes
     if (customer.defaultBillingAddressId !== customerInputRefs.current['defaultBilling']?.initialValue) {
       actions.push({
         action: 'setDefaultBillingAddress',
@@ -136,28 +99,14 @@ const ProfileComponent: React.FC = () => {
     try {
       const response = await updateCustomer(customer, payload);
 
-      Toastify({
-        text: 'Profile updated successfully!',
-        duration: 3000,
-        gravity: 'top',
-        position: 'center',
-        backgroundColor: '#28a745',
-        stopOnFocus: true,
-      }).showToast();
+      showToast('Profile updated successfully!', 'success');
 
       setCustomer(response);
       setSuccessMessage('Profile updated successfully!');
       setIsEditing(false);
     } catch (error) {
       console.error('Error updating customer:', error);
-      Toastify({
-        text: 'Failed to update profile. Please try again.',
-        duration: 3000,
-        gravity: 'top',
-        position: 'center',
-        backgroundColor: '#dc3545',
-        stopOnFocus: true,
-      }).showToast();
+      showToast('Failed to update profile. Please try again.', 'error');
       setErrorMessage('Failed to update profile. Please try again.');
     } finally {
       setLoading(false);
@@ -193,12 +142,9 @@ const ProfileComponent: React.FC = () => {
     );
   };
   return (
-    <div className="relative w-full min-h-screen bg-[#221B18] text-americanSilver py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold text-creamLight font-third">My Profile</h1>
-          <p className="mt-2 text-americanSilver">Manage your account information</p>
-        </div>
+    <div className="profile-page">
+      <div className="profile-container">
+        <ProfileHeader />
 
         <div className="bg-coffeeBrown rounded-lg shadow-xl overflow-hidden p-6 sm:p-8">
           {!isEditing && (
@@ -212,9 +158,7 @@ const ProfileComponent: React.FC = () => {
 
           <form onSubmit={handleSubmit}>
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-creamLight border-b border-rustBrown pb-2 mb-6">
-                Personal Information
-              </h2>
+              <h2 className="section-title">Personal Information</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {['firstName', 'lastName', 'dateOfBirth', 'email'].map((name) => (
@@ -239,7 +183,7 @@ const ProfileComponent: React.FC = () => {
             </div>
 
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-creamLight border-b border-rustBrown pb-2 mb-6">Addresses</h2>
+              <h2 className="section-title">Addresses</h2>
 
               <div className="flex flex-col gap-8">
                 {customer.addresses.map((address, index) => (
@@ -285,7 +229,7 @@ const ProfileComponent: React.FC = () => {
                             return validateCity(val);
                           }
 
-                          return null; // Default case (in case a field is missing)
+                          return null;
                         }}
                         readOnly={!isEditing}
                       />
@@ -330,7 +274,6 @@ const ProfileComponent: React.FC = () => {
                     />
                     {isEditing && (
                       <div className="flex flex-col gap-2 mt-4">
-                        {/* Default Billing Address Checkbox */}
                         <div className="flex items-center gap-2">
                           <input
                             type="checkbox"
@@ -340,7 +283,6 @@ const ProfileComponent: React.FC = () => {
                           <label className="text-sm text-creamLight">Set as Default Billing Address</label>
                         </div>
 
-                        {/* Default Shipping Address Checkbox */}
                         <div className="flex items-center gap-2">
                           <input
                             type="checkbox"
