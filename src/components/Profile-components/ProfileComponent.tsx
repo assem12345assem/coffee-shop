@@ -3,14 +3,9 @@ import type {
   Customer,
   CustomerUpdateAction,
 } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
-import {
-  denormalizeCountryCode,
-  getLoggedInUserFromSessionStorage,
-  normalizeCountryInput,
-} from '@/utils/customerUtils';
+import { denormalizeCountryCode, getLoggedInUserFromSessionStorage } from '@/utils/customerUtils';
 import { getCustomerById } from '@/api/customers';
 import Button from '@/components/Login-registration-components/Button';
-import Input from '@/components/Login-registration-components/Input';
 import {
   validateCity,
   validateCountry,
@@ -20,10 +15,9 @@ import {
   validatePostalCode,
   validateStreet,
 } from '@/utils/validation';
-import CountryInput from '@/components/Login-registration-components/CountryInput';
 import type { InputHandle } from '@/data/interfaces';
 import { updateCustomer } from '@/api/profile/update';
-import type { CustomerUpdate } from '@commercetools/platform-sdk';
+import type { Address, CustomerUpdate } from '@commercetools/platform-sdk';
 import 'toastify-js/src/toastify.css';
 import { generateAddressActions, generatePersonalInfoActions, showToast } from '@/utils/profileUtils';
 import '@/styles/profile.css';
@@ -37,8 +31,6 @@ const ProfileComponent: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [customer, setCustomer] = useState<Customer | null>(null);
-  const countryRefs = useRef<(InputHandle | null)[]>([]);
-  const postalCodeRefs = useRef<(InputHandle | null)[]>([]);
   const customerInputRefs = useRef<{ [key: string]: InputHandle }>({});
   const addressRefs = useRef<{ [key: number]: { [key: string]: InputHandle } }>({});
   const validationFunctions = {
@@ -147,22 +139,33 @@ const ProfileComponent: React.FC = () => {
   };
   const resetInputFields = () => {
     Object.keys(customerInputRefs.current).forEach((field) => {
-      customerInputRefs.current[field]?.setValueExternally(originalCustomer?.[field] ?? '');
+      const value = originalCustomer?.[field as keyof Customer];
+
+      customerInputRefs.current[field]?.setValueExternally(typeof value === 'string' ? value : String(value ?? ''));
     });
 
     customer.addresses.forEach((address, index) => {
-      Object.keys(addressRefs.current[index] || {}).forEach((field) => {
+      const addressRef = addressRefs.current[index];
+
+      if (!addressRef) return; // ✅ Avoid accessing undefined references
+
+      Object.keys(addressRef).forEach((field) => {
         if (field === 'country') {
           const originalCountry = originalCustomer?.addresses[index]?.country;
-          addressRefs.current[index]['country']?.setValueExternally(
-            originalCountry ? denormalizeCountryCode(originalCountry) : ''
-          );
+          addressRef['country']?.setValueExternally(originalCountry ? denormalizeCountryCode(originalCountry) : '');
 
           setTimeout(() => {
-            addressRefs.current[index]['postalCode']?.setErrorExternally(null);
+            const postalCodeRef = addressRef?.postalCode;
+            if (postalCodeRef && typeof postalCodeRef.setErrorExternally === 'function') {
+              postalCodeRef.setErrorExternally(undefined);
+            }
           }, 0);
         } else {
-          addressRefs.current[index][field]?.setValueExternally(originalCustomer?.addresses[index]?.[field] ?? '');
+          const value = originalCustomer?.addresses[index]?.[field as keyof Address];
+
+          addressRef[field as keyof Address]?.setValueExternally(
+            typeof value === 'string' ? value : JSON.stringify(value ?? '')
+          );
         }
       });
     });
@@ -189,7 +192,7 @@ const ProfileComponent: React.FC = () => {
                 setOriginalCustomer(JSON.parse(JSON.stringify(customer)));
                 setIsEditing(true);
               }}
-              className="bg-LightTaupe hover:bg-rustBrown text-Temptress mb-4"
+              className="bg-amber-800 hover:bg-rustBrown text-Temptress mb-4 transition-transform duration-200 hover:scale-105"
             />
           )}
 
@@ -216,13 +219,13 @@ const ProfileComponent: React.FC = () => {
                   type="button"
                   label="Cancel"
                   onClick={handleCancel}
-                  className="border-creamLight text-black hover:bg-rustBrown"
+                  className="bg-amber-800 border-creamLight text-black hover:bg-rustBrown transition-transform duration-200 hover:scale-105"
                 />
                 <Button
                   type="submit"
                   label={loading ? 'Saving...' : 'Save Changes'}
                   disabled={loading}
-                  className="bg-LightTaupe hover:bg-rustBrown text-Temptress"
+                  className="bg-amber-800 hover:bg-rustBrown text-Temptress transition-transform duration-200 hover:scale-105"
                 />
               </div>
             )}

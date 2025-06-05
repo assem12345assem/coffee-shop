@@ -1,8 +1,22 @@
 import type { Cart } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/cart';
 import type { Customer } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
+import {
+  AuthenticationMode,
+  CustomerAddAddressAction,
+  CustomerAddBillingAddressIdAction,
+  CustomerGroupAssignmentDraft,
+  ICustomerUpdateAction,
+} from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
 import type { ChangeEvent, ForwardRefExoticComponent, PropsWithoutRef, RefAttributes, RefObject } from 'react';
 import type React from 'react';
 import type { CustomFields } from '@commercetools/platform-sdk';
+import { _BaseAddress } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/common';
+import { StoreResourceIdentifier } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/store';
+import { CustomerGroupResourceIdentifier } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer-group';
+import {
+  FieldContainer,
+  TypeResourceIdentifier,
+} from '@commercetools/platform-sdk/dist/declarations/src/generated/models/type';
 
 export interface Country {
   code: string;
@@ -142,7 +156,7 @@ export interface InputHandle {
   setValueExternally: (value: string) => void;
   triggerValidation?: () => void;
   initialValue?: StringOrNull;
-  setErrorExternally?: () => void;
+  setErrorExternally?: (error?: string) => void;
 }
 export interface InputProps {
   label: string;
@@ -283,9 +297,41 @@ export interface SortingComponentProps {
   onSortChange?: (field: SortField, order: SortOrder) => void;
 }
 export interface PersonalInfoProps {
-  customerInputRefs: React.MutableRefObject<{ [key: string]: any }>;
+  customerInputRefs: RefObject<Record<string, HTMLInputElement | HTMLSelectElement | null>>; // Define expected element types
   customer: Customer;
   handleInputChange: (field: string, value: string) => void;
-  validationFunctions: Record<string, (...args: any[]) => string | null>; // Accepts multiple arguments
+  validationFunctions: Record<string, (...args: unknown[]) => string | null>; // Use `unknown` for safer types
   isEditing: boolean;
+}
+
+export type ValidCustomerAction =
+  | 'setDateOfBirth'
+  | 'changeEmail'
+  | 'changeAddress'
+  | 'addAddress'
+  | 'addBillingAddressId'
+  | 'addCustomerGroupAssignment'
+  | 'addShippingAddressId'
+  | 'addStore'
+  | 'removeAddress'
+  | 'setVatId'
+  | 'setDefaultShippingAddress'
+  | 'setAddressCustomType'
+  | 'setAuthenticationMode'
+  | 'removeBillingAddressId'
+  | 'removeShippingAddressId'
+  | 'removeStore'
+  | 'setAddressCustomField'
+  | 'setCompanyName'
+  | 'setCustomField'
+  | 'setCustomType'
+  | 'setCustomerGroup'
+  | 'setCustomerNumber'
+  | 'setDefaultBillingAddress';
+
+export interface AddressRefs {
+  postalCode?: HTMLInputElement;
+  country?: HTMLSelectElement;
+  streetName?: HTMLInputElement;
+  countryName?: HTMLSelectElement;
 }

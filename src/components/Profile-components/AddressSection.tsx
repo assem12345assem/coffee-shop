@@ -6,10 +6,11 @@ import { validateCity, validateCountry, validatePostalCode, validateStreet } fro
 import CountryInput from '@/components/Login-registration-components/CountryInput';
 import { denormalizeCountryCode, normalizeCountryInput } from '@/utils/customerUtils';
 import type { Address } from '@commercetools/platform-sdk';
+import type { AddressRefs } from '@/data/interfaces';
 
 interface AddressSectionProps {
   customer: Customer;
-  addressRefs: RefObject<any>;
+  addressRefs: RefObject<Record<string, AddressRefs>>;
   setCustomer: React.Dispatch<React.SetStateAction<Customer | null>>;
   isEditing: boolean;
   handleSetDefaultAddress: (type: 'billing' | 'shipping', addressId: string) => void;
@@ -115,7 +116,11 @@ const AddressSection: React.FC<AddressSectionProps> = ({
                 <input
                   type="checkbox"
                   checked={customer.defaultBillingAddressId === address.id}
-                  onChange={() => handleSetDefaultAddress('billing', address.id)}
+                  onChange={() => {
+                    if (address.id) {
+                      handleSetDefaultAddress('billing', address.id);
+                    }
+                  }}
                 />
                 <span className="text-sm text-creamLight">Set as Default Billing Address</span>
               </div>
@@ -123,7 +128,11 @@ const AddressSection: React.FC<AddressSectionProps> = ({
                 <input
                   type="checkbox"
                   checked={customer.defaultShippingAddressId === address.id}
-                  onChange={() => handleSetDefaultAddress('shipping', address.id)}
+                  onChange={() => {
+                    if (address.id) {
+                      handleSetDefaultAddress('billing', address.id);
+                    }
+                  }}
                 />
                 <span className="text-sm text-creamLight">Set as Default Shipping Address</span>
               </div>

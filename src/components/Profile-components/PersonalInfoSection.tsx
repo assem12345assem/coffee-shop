@@ -1,9 +1,7 @@
-import React, { Ref } from 'react';
+import React from 'react';
 import Input from '@/components/Login-registration-components/Input';
-import type { RefObject } from 'react';
 import type { Customer } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
 import type { PersonalInfoProps } from '@/data/interfaces';
-import { InputHandle } from '@/data/interfaces';
 
 const PersonalInfoSection: React.FC<PersonalInfoProps> = ({
   customerInputRefs,

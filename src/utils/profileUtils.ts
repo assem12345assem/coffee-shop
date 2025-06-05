@@ -3,10 +3,12 @@ import 'toastify-js/src/toastify.css';
 import { normalizeCountryInput } from '@/utils/customerUtils';
 import type {
   Customer,
+  CustomerSetAddressCustomTypeAction,
   CustomerUpdateAction,
 } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
 import type { RefObject } from 'react';
 import type React from 'react';
+import type { ValidCustomerAction } from '@/data/interfaces';
 
 export const showToast = (message: string, type: 'success' | 'error') => {
   Toastify({
@@ -14,7 +16,9 @@ export const showToast = (message: string, type: 'success' | 'error') => {
     duration: 3000,
     gravity: 'top',
     position: 'center',
-    background: type === 'success' ? '#28a745' : '#dc3545',
+    style: {
+      backgroundColor: type === 'success' ? '#28a745' : '#dc3545',
+    },
     stopOnFocus: true,
   }).showToast();
 };
@@ -65,10 +69,24 @@ export const generatePersonalInfoActions = (customerInputRefs: React.MutableRefO
             ? 'changeEmail'
             : `set${field.charAt(0).toUpperCase()}${field.slice(1)}`;
 
-      actions.push({
-        action: actionName,
+      const actionObject = {
+        action: actionName as ValidCustomerAction,
         [field]: inputRef.getValue(),
-      });
+      } as Partial<CustomerUpdateAction>;
+
+      if (actionName === 'setAddressCustomType') {
+        actions.push({
+          action: 'setAddressCustomType',
+          addressId: inputRef.getValue(),
+        } as CustomerSetAddressCustomTypeAction);
+      } else {
+        actions.push({
+          action: actionName as ValidCustomerAction,
+          [field]: inputRef.getValue(),
+        } as CustomerUpdateAction);
+      }
+
+      actions.push(actionObject as CustomerUpdateAction);
     }
   });
 
