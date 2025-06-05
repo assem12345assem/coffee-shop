@@ -7,8 +7,7 @@ import type {
   CustomerUpdateAction,
 } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
 import type { RefObject } from 'react';
-import type React from 'react';
-import type { ValidCustomerAction } from '@/data/interfaces';
+import type { AddressRefs, CustomerPersonalFields, ValidCustomerAction } from '@/data/interfaces';
 
 export const showToast = (message: string, type: 'success' | 'error') => {
   Toastify({
@@ -23,7 +22,7 @@ export const showToast = (message: string, type: 'success' | 'error') => {
   }).showToast();
 };
 
-export const getUpdatedAddressFields = (index: number, addressRefs: React.MutableRefObject<any>) => {
+export const getUpdatedAddressFields = (index: number, addressRefs: RefObject<Record<string, AddressRefs>>) => {
   const updatedAddress: Record<string, string> = {};
   let hasChanges = false;
 
@@ -38,8 +37,8 @@ export const getUpdatedAddressFields = (index: number, addressRefs: React.Mutabl
   return hasChanges ? updatedAddress : null;
 };
 
-export const generateAddressActions = (customer: Customer, addressRefs: RefObject<any>) => {
-  const actions: any[] = [];
+export const generateAddressActions = (customer: Customer, addressRefs: RefObject<Record<string, AddressRefs>>) => {
+  const actions: CustomerUpdateAction[] = [];
 
   customer.addresses.forEach((address, index) => {
     const updatedAddress = getUpdatedAddressFields(index, addressRefs);
@@ -55,11 +54,13 @@ export const generateAddressActions = (customer: Customer, addressRefs: RefObjec
   return actions;
 };
 
-export const generatePersonalInfoActions = (customerInputRefs: React.MutableRefObject<any>) => {
+export const generatePersonalInfoActions = (
+  customerInputRefs: RefObject<Record<CustomerPersonalFields, HTMLInputElement | null>>
+) => {
   const actions: CustomerUpdateAction[] = [];
 
   ['firstName', 'lastName', 'dateOfBirth', 'email'].forEach((field) => {
-    const inputRef = customerInputRefs.current[field];
+    const inputRef = customerInputRefs.current[field as CustomerPersonalFields];
 
     if (inputRef && inputRef.getValue() !== inputRef.initialValue) {
       const actionName =

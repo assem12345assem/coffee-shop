@@ -1,22 +1,8 @@
 import type { Cart } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/cart';
 import type { Customer } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
-import {
-  AuthenticationMode,
-  CustomerAddAddressAction,
-  CustomerAddBillingAddressIdAction,
-  CustomerGroupAssignmentDraft,
-  ICustomerUpdateAction,
-} from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
 import type { ChangeEvent, ForwardRefExoticComponent, PropsWithoutRef, RefAttributes, RefObject } from 'react';
 import type React from 'react';
 import type { CustomFields } from '@commercetools/platform-sdk';
-import { _BaseAddress } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/common';
-import { StoreResourceIdentifier } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/store';
-import { CustomerGroupResourceIdentifier } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer-group';
-import {
-  FieldContainer,
-  TypeResourceIdentifier,
-} from '@commercetools/platform-sdk/dist/declarations/src/generated/models/type';
 
 export interface Country {
   code: string;
@@ -334,4 +320,8 @@ export interface AddressRefs {
   country?: HTMLSelectElement;
   streetName?: HTMLInputElement;
   countryName?: HTMLSelectElement;
+}
+export type CustomerPersonalFields = 'firstName' | 'lastName' | 'dateOfBirth' | 'email';
+export interface CustomInput extends HTMLInputElement {
+  getValue: () => string;
 }

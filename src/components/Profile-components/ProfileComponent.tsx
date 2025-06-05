@@ -91,7 +91,7 @@ const ProfileComponent: React.FC = () => {
     return actions.length > 0 ? { version: customer.version, actions } : { version: customer.version, actions: [] };
   };
 
-  const updateCustomerProfile = async (payload: any) => {
+  const updateCustomerProfile = async (payload: CustomerUpdate) => {
     try {
       const response = await updateCustomer(customer, payload);
 
@@ -230,6 +230,8 @@ const ProfileComponent: React.FC = () => {
               </div>
             )}
           </form>
+          {successMessage && <div className="success">{successMessage}</div>}
+          {errorMessage && <div className="error">{errorMessage}</div>}
         </div>
       </div>
     </div>
