@@ -7,6 +7,8 @@ import CountryInput from '@/components/Login-registration-components/CountryInpu
 import { denormalizeCountryCode, normalizeCountryInput } from '@/utils/customerUtils';
 import type { Address } from '@commercetools/platform-sdk';
 import type { AddressRefs } from '@/data/interfaces';
+import pencilIcon from '@/assets/pencil.png';
+import removeIcon from '@/assets/remove.png';
 
 interface AddressSectionProps {
   customer: Customer;
@@ -14,6 +16,7 @@ interface AddressSectionProps {
   setCustomer: React.Dispatch<React.SetStateAction<Customer | null>>;
   isEditing: boolean;
   handleSetDefaultAddress: (field: string, addressId: string) => void;
+  handleRemoveClick: (addressId: string) => void;
 }
 
 const AddressSection: React.FC<AddressSectionProps> = ({
@@ -22,14 +25,29 @@ const AddressSection: React.FC<AddressSectionProps> = ({
   setCustomer,
   isEditing,
   handleSetDefaultAddress,
+  handleRemoveClick,
 }) => (
   <div className="mb-8">
     <h2 className="section-title">Addresses</h2>
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 p-10">
       {customer.addresses.map((address, index) => (
-        <div key={index}>
+        <div key={index} className="flex flex-col gap-8 transition-transform duration-200 hover:-translate-y-2">
           <div className="flex justify-between items-center">
-            <h3>Address {index + 1}</h3>
+            <div className="flex gap-3">
+              <h3 className="text-[#f5f5dc] font-semibold text-lg border-b-2 border-[#8b5a2b] pb-2 ">
+                Address {index + 1}
+              </h3>
+              <div className="bg-creamLight p-2 rounded-full flex justify-center items-center w-10 h-10 transition-transform duration-200 hover:scale-110">
+                <img src={pencilIcon} alt="Edit" className="w-6 h-6" />
+              </div>
+
+              <div
+                className="bg-creamLight p-2 rounded-full flex justify-center items-center w-10 h-10 transition-transform duration-200 hover:scale-110 cursor-pointer"
+                onClick={() => handleRemoveClick(index)}
+              >
+                <img src={removeIcon} alt="Remove" className="w-6 h-6" />
+              </div>
+            </div>
             <div className="flex gap-2">
               {customer.defaultBillingAddressId === address.id && (
                 <div className="flex items-center">

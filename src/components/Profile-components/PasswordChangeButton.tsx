@@ -41,7 +41,7 @@ export const PasswordChangeButton = () => {
     <div>
       <Button
         label="Change Password"
-        className="bg-orange-100 text-orange-900 transition-transform duration-200 hover:scale-105"
+        className="bg-lime-900 transition-transform duration-200 hover:scale-105"
         onClick={() => setModalOpen(true)}
       />
       <PasswordChangeModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} onChangePassword={changePassword} />

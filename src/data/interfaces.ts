@@ -326,3 +326,11 @@ export type CustomerPersonalFields = 'firstName' | 'lastName' | 'dateOfBirth' | 
 export interface CustomInput extends HTMLInputElement {
   getValue: () => string;
 }
+export type addAddressType = {
+  streetName: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  isDefaultBilling: boolean;
+  isDefaultShipping: boolean;
+};

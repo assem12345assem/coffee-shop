@@ -15,7 +15,7 @@ import {
   validatePostalCode,
   validateStreet,
 } from '@/utils/validation';
-import type { InputHandle } from '@/data/interfaces';
+import type { addAddressType, InputHandle } from '@/data/interfaces';
 import { updateCustomer } from '@/api/profile/update';
 import type { Address, CustomerUpdate } from '@commercetools/platform-sdk';
 import 'toastify-js/src/toastify.css';
@@ -25,6 +25,7 @@ import ProfileHeader from '@/components/Profile-components/ProfileHeader';
 import PersonalInfoSection from '@/components/Profile-components/PersonalInfoSection';
 import AddressSection from '@/components/Profile-components/AddressSection';
 import { PasswordChangeButton } from '@/components/Profile-components/PasswordChangeButton';
+import AddAddress from '@/components/Profile-components/AddAddress';
 
 const ProfileComponent: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -46,6 +47,19 @@ const ProfileComponent: React.FC = () => {
     country: validateCountry,
   };
   const [originalCustomer, setOriginalCustomer] = useState<Customer | null>(null);
+  const [addressToDelete, setAddressToDelete] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (addressToDelete !== null) {
+      document.body.style.overflow = 'hidden'; // Disable scrolling
+    } else {
+      document.body.style.overflow = 'visible'; // Re-enable scrolling
+    }
+
+    return () => {
+      document.body.style.overflow = 'visible'; // Cleanup on unmount
+    };
+  }, [addressToDelete]);
 
   useEffect(() => {
     if (successMessage || errorMessage) {
@@ -189,6 +203,91 @@ const ProfileComponent: React.FC = () => {
     }
     setIsEditing(false);
   };
+  const onAdd = async (newAddress: addAddressType) => {
+    setCustomer((prev) =>
+      prev
+        ? {
+            ...prev,
+            addresses: [...prev.addresses, newAddress],
+          }
+        : prev
+    );
+    const requestBody: CustomerUpdateAction[] = [];
+    requestBody.push({ action: 'addAddress', address: newAddress });
+
+    try {
+      let response = await updateCustomer(customer, { version: customer.version, actions: requestBody });
+      if (!response || !response.addresses) {
+        showToast('Failed to retrieve new address. Please try again.', 'error');
+        return;
+      }
+      setCustomer(response);
+      const newAddressId = response.addresses.find(
+        (addr) =>
+          addr.streetName === newAddress.streetName &&
+          addr.city === newAddress.city &&
+          addr.postalCode === newAddress.postalCode
+      )?.id;
+
+      if (!newAddressId) {
+        showToast('Failed to retrieve newly added address. Please try again.', 'error');
+        return;
+      }
+      setCustomer(response);
+      const defaultUpdateActions: CustomerUpdateAction[] = [];
+      if (newAddress.isDefaultBilling) {
+        defaultUpdateActions.push({ action: 'setDefaultBillingAddress', addressId: newAddressId });
+      }
+      if (newAddress.isDefaultShipping) {
+        defaultUpdateActions.push({ action: 'setDefaultShippingAddress', addressId: newAddressId });
+      }
+      if (defaultUpdateActions.length > 0) {
+        response = await updateCustomer(customer, { version: response.version, actions: defaultUpdateActions });
+        setCustomer(response);
+      }
+      showToast('New address added successfully!', 'success');
+      setSuccessMessage('New address added successfully!');
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error adding new address:', error);
+      showToast('Failed to add new address. Please try again.', 'error');
+      setErrorMessage('Failed to add new address. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleRemoveClick = (index: number) => {
+    setAddressToDelete(index);
+  };
+  const handleCancelRemove = () => {
+    setAddressToDelete(null);
+  };
+  const handleConfirmRemove = async () => {
+    if (addressToDelete === null) return;
+
+    // Get the address ID for removal
+    const addressId = customer?.addresses[addressToDelete]?.id;
+    if (!addressId) {
+      showToast('Failed to remove address. No ID found.', 'error');
+      return;
+    }
+
+    // Update request payload
+    const requestBody: CustomerUpdateAction[] = [{ action: 'removeAddress', addressId }];
+
+    try {
+      const response = await updateCustomer(customer, { version: customer.version, actions: requestBody });
+
+      setCustomer(response); // Update the customer state
+      showToast(`Selected address removed successfully!`, 'success');
+    } catch (error) {
+      console.error('Error removing address:', error);
+      showToast('Failed to remove address. Please try again.', 'error');
+    } finally {
+      setAddressToDelete(null); // Close dialog
+    }
+  };
+
   return (
     <div className="profile-page">
       <div className="profile-container">
@@ -197,6 +296,9 @@ const ProfileComponent: React.FC = () => {
         <div className="bg-coffeeBrown rounded-lg shadow-xl overflow-hidden p-6 sm:p-8">
           <div className="my-3">
             <PasswordChangeButton />
+          </div>
+          <div className="my-3">
+            <AddAddress onAdd={onAdd} handleSetDefaultAddress={handleSetDefaultAddress} />
           </div>
           {!isEditing && (
             <Button
@@ -208,6 +310,29 @@ const ProfileComponent: React.FC = () => {
               }}
               className="bg-amber-800 hover:bg-rustBrown text-Temptress mb-4 transition-transform duration-200 hover:scale-105"
             />
+          )}
+          {addressToDelete !== null && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[9998]">
+              <div className="bg-coffeeBrown text-creamLight p-6 rounded-lg w-96 z-[9999]">
+                <h2 className="text-xl font-semibold mb-4">Are you sure?</h2>
+                <p>Do you want to delete the address?</p>
+
+                <div className="flex justify-end gap-2 mt-4">
+                  <button
+                    className="bg-red-600 text-white p-2 rounded-md transition-transform duration-200 hover:scale-105"
+                    onClick={handleConfirmRemove}
+                  >
+                    Yes, Delete
+                  </button>
+                  <button
+                    className="bg-gray-600 text-white p-2 rounded-md transition-transform duration-200 hover:scale-105"
+                    onClick={handleCancelRemove}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
 
           <form onSubmit={handleSubmit}>
@@ -225,22 +350,30 @@ const ProfileComponent: React.FC = () => {
               setCustomer={setCustomer}
               isEditing={isEditing}
               handleSetDefaultAddress={handleSetDefaultAddress}
+              handleRemoveClick={handleRemoveClick}
             />
 
             {isEditing && (
-              <div className="flex flex-col sm:flex-row justify-end gap-4 mt-10">
-                <Button
-                  type="button"
-                  label="Cancel"
-                  onClick={handleCancel}
-                  className="bg-amber-800 border-creamLight text-black hover:bg-rustBrown transition-transform duration-200 hover:scale-105"
-                />
-                <Button
-                  type="submit"
-                  label={loading ? 'Saving...' : 'Save Changes'}
-                  disabled={loading}
-                  className="bg-amber-800 hover:bg-rustBrown text-Temptress transition-transform duration-200 hover:scale-105"
-                />
+              <div className="fixed bottom-0 left-0 w-full flex flex-col gap-4 bg-creamLight p-4 shadow-md">
+                <div className="text-center">
+                  <p className="text-amber-800">
+                    You are in edit mode... Use buttons below to save your changes or exist edit mode.{' '}
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button
+                    type="button"
+                    label="Cancel"
+                    onClick={handleCancel}
+                    className="bg-amber-800 border-creamLight text-black hover:bg-rustBrown transition-transform duration-200 hover:scale-105"
+                  />
+                  <Button
+                    type="submit"
+                    label={loading ? 'Saving...' : 'Save Changes'}
+                    disabled={loading}
+                    className="bg-amber-800 hover:bg-rustBrown text-Temptress transition-transform duration-200 hover:scale-105"
+                  />
+                </div>
               </div>
             )}
           </form>
