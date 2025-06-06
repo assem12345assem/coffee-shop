@@ -48,6 +48,17 @@ const ProfileComponent: React.FC = () => {
   const [originalCustomer, setOriginalCustomer] = useState<Customer | null>(null);
 
   useEffect(() => {
+    if (successMessage || errorMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage(null);
+        setErrorMessage(null);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage, errorMessage]);
+
+  useEffect(() => {
     const fetchCustomer = async () => {
       try {
         const user = getLoggedInUserFromSessionStorage();
@@ -62,7 +73,6 @@ const ProfileComponent: React.FC = () => {
         throw error;
       }
     };
-
     fetchCustomer();
   }, []);
 
@@ -128,12 +138,12 @@ const ProfileComponent: React.FC = () => {
   const handleInputChange = (field: string, value: string) => {
     setCustomer((prev) => (prev ? { ...prev, [field]: value } : prev));
   };
-  const handleSetDefaultAddress = (type: 'billing' | 'shipping', addressId: string) => {
+  const handleSetDefaultAddress = (field: string, addressId: string) => {
     setCustomer((prev) =>
       prev
         ? {
             ...prev,
-            [type === 'billing' ? 'defaultBillingAddressId' : 'defaultShippingAddressId']: addressId,
+            [field]: addressId,
           }
         : prev
     );
@@ -234,8 +244,15 @@ const ProfileComponent: React.FC = () => {
               </div>
             )}
           </form>
-          {successMessage && <div className="success">{successMessage}</div>}
-          {errorMessage && <div className="error">{errorMessage}</div>}
+          {successMessage && (
+            <div className="bg-green-500 text-white font-bold p-3 rounded-md shadow-lg animate-fade">
+              {successMessage}
+            </div>
+          )}
+
+          {errorMessage && (
+            <div className="bg-red-500 text-white font-bold p-3 rounded-md shadow-lg animate-fade">{errorMessage}</div>
+          )}
         </div>
       </div>
     </div>

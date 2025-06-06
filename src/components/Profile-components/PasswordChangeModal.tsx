@@ -29,6 +29,15 @@ export const PasswordChangeModal: React.FC<PasswordModalProps> = ({ isOpen, onCl
     const newPassword = newPasswordRef.current?.getValue() || '';
     const confirmPassword = confirmPasswordRef.current?.getValue() || '';
 
+    const currentPasswordError = currentPasswordRef.current?.getError();
+    const newPasswordError = newPasswordRef.current?.getError();
+    const confirmPasswordError = confirmPasswordRef.current?.getError();
+
+    if (currentPasswordError || newPasswordError || confirmPasswordError) {
+      showToast('Please correct validation errors before submitting.', 'error');
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       showToast('Passwords do not match', 'error');
       return;

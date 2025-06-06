@@ -13,7 +13,7 @@ interface AddressSectionProps {
   addressRefs: RefObject<Record<string, AddressRefs>>;
   setCustomer: React.Dispatch<React.SetStateAction<Customer | null>>;
   isEditing: boolean;
-  handleSetDefaultAddress: (type: 'billing' | 'shipping', addressId: string) => void;
+  handleSetDefaultAddress: (field: string, addressId: string) => void;
 }
 
 const AddressSection: React.FC<AddressSectionProps> = ({
@@ -28,14 +28,22 @@ const AddressSection: React.FC<AddressSectionProps> = ({
     <div className="flex flex-col gap-8">
       {customer.addresses.map((address, index) => (
         <div key={index}>
-          <h3>Address {index + 1}</h3>
           <div className="flex justify-between items-center">
-            {customer.defaultBillingAddressId === address.id && (
-              <span className="text-sm text-semiGreen">Default Billing Address</span>
-            )}
-            {customer.defaultShippingAddressId === address.id && (
-              <span className="text-sm text-semiGreen">Default Shipping Address</span>
-            )}
+            <h3>Address {index + 1}</h3>
+            <div className="flex gap-2">
+              {customer.defaultBillingAddressId === address.id && (
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-semiGreen rounded-full mr-1" />
+                  <span className="text-sm text-semiGreen">Default Billing Address</span>
+                </div>
+              )}
+              {customer.defaultShippingAddressId === address.id && (
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-blue-400 rounded-full mr-1" />
+                  <span className="text-sm text-blue-400">Default Shipping Address</span>
+                </div>
+              )}
+            </div>
           </div>
 
           {['streetName', 'city', 'postalCode'].map((field) => (
@@ -118,7 +126,7 @@ const AddressSection: React.FC<AddressSectionProps> = ({
                   checked={customer.defaultBillingAddressId === address.id}
                   onChange={() => {
                     if (address.id) {
-                      handleSetDefaultAddress('billing', address.id);
+                      handleSetDefaultAddress('defaultBillingAddressId', address.id);
                     }
                   }}
                 />
@@ -130,7 +138,7 @@ const AddressSection: React.FC<AddressSectionProps> = ({
                   checked={customer.defaultShippingAddressId === address.id}
                   onChange={() => {
                     if (address.id) {
-                      handleSetDefaultAddress('billing', address.id);
+                      handleSetDefaultAddress('defaultShippingAddressId', address.id);
                     }
                   }}
                 />
