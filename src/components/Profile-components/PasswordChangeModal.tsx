@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { showToast } from '@/utils/profileUtils';
 import PasswordInput from '@/components/Login-registration-components/PasswordInput';
 import type { InputHandle } from '@/data/interfaces';

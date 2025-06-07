@@ -14,7 +14,6 @@ import {
   validateDOB,
   validateEmail,
   validateName,
-  validatePassword,
   validatePostalCode,
   validateStreet,
 } from '@/utils/validation';
@@ -105,7 +104,6 @@ export const generatePersonalInfoActions = (
 export function validateCustomer(customer: Customer): Record<string, string | Record<string, string>[]> {
   const errors: Record<string, string> = {};
 
-  // Validation mappings
   const validators: Record<string, (value: string) => string | null> = {
     email: validateEmail,
     firstName: validateName,
@@ -113,7 +111,6 @@ export function validateCustomer(customer: Customer): Record<string, string | Re
     dateOfBirth: validateDOB,
   };
 
-  // Validate customer fields and **only store actual errors**
   Object.keys(validators).forEach((field) => {
     if (customer[field]) {
       const error = validators[field](customer[field]);
@@ -148,7 +145,7 @@ export function validateCustomer(customer: Customer): Record<string, string | Re
 
         return Object.keys(addrErrors).length > 0 ? addrErrors : null;
       })
-      .filter((error) => error !== null); // ✅ Removes `null` errors completely
+      .filter((error) => error !== null);
 
     if (addressErrors.length > 0) {
       errors.addresses = addressErrors;

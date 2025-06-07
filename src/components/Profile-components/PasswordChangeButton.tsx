@@ -6,7 +6,6 @@ import type { SessionUser } from '@/data/interfaces';
 import { changeCustomerPassword } from '@/api/profile/update';
 import type { CustomerChangePassword } from '@commercetools/platform-sdk';
 import { showToast } from '@/utils/profileUtils';
-import type { Customer } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
 import React from 'react';
 import handleApiError from '@/utils/handleApiError';
 import { getCustomerById } from '@/api/customers';
@@ -29,7 +28,7 @@ export const PasswordChangeButton = () => {
         currentPassword,
         newPassword,
       };
-      const response: Customer = await changeCustomerPassword(customerChangePassword);
+      await changeCustomerPassword(customerChangePassword);
       showToast('Password successfully changed!', 'success');
     } catch (error) {
       console.error(error);

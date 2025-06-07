@@ -284,10 +284,10 @@ export interface SortingComponentProps {
   onSortChange?: (field: SortField, order: SortOrder) => void;
 }
 export interface PersonalInfoProps {
-  customerInputRefs: RefObject<Record<string, HTMLInputElement | HTMLSelectElement | null>>; // Define expected element types
+  customerInputRefs: RefObject<Record<string, HTMLInputElement | HTMLSelectElement | null>>;
   customer: Customer;
   handleInputChange: (field: string, value: string) => void;
-  validationFunctions: Record<string, (...args: unknown[]) => string | null>; // Use `unknown` for safer types
+  validationFunctions: Record<string, (...args: unknown[]) => string | null>;
   isEditing: boolean;
 }
 

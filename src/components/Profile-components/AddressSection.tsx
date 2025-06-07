@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import React from 'react';
 import type { Customer } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
 import Input from '@/components/Login-registration-components/Input';
@@ -10,7 +10,7 @@ import type { InputHandle } from '@/data/interfaces';
 import pencilIcon from '@/assets/pencil.png';
 import removeIcon from '@/assets/remove.png';
 import AddressFields from '@/components/Profile-components/AddressFields';
-import { showToast, validateAddressEntry, validateCustomer } from '@/utils/profileUtils';
+import { showToast, validateAddressEntry } from '@/utils/profileUtils';
 
 interface AddressSectionProps {
   customer: Customer;
@@ -52,7 +52,6 @@ const AddressSection: React.FC<AddressSectionProps> = ({
   const handleSaveAndClose = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!addressToEdit) return;
-    console.log('addressToEdit', addressToEdit);
     const errors = validateAddressEntry(addressToEdit);
 
     if (errors) {
@@ -61,7 +60,6 @@ const AddressSection: React.FC<AddressSectionProps> = ({
       return;
     }
 
-    console.log('no errors!');
     handleSaveEdit(addressToEdit, {
       isBillingDefault,
       isShippingDefault,
@@ -100,15 +98,12 @@ const AddressSection: React.FC<AddressSectionProps> = ({
                 onClick={() => {
                   delete addressValidityRefs.current[indexItem];
 
-                  // ✅ 2. Clear errors from input fields if needed
                   const fieldRefs = addressRefs.current[indexItem];
                   if (fieldRefs) {
                     Object.values(fieldRefs).forEach((ref) => {
                       ref?.setErrorExternally?.('');
                     });
                   }
-
-                  // ✅ 3. Close modal and reset state
                   setAddressToEdit(null);
                 }}
               >
@@ -173,7 +168,7 @@ const AddressSection: React.FC<AddressSectionProps> = ({
                 key={`${index}-${field}`}
                 ref={(el) => {
                   if (el) {
-                    addressRefs.current[index] = addressRefs.current[index] || {}; // Ensure it exists
+                    addressRefs.current[index] = addressRefs.current[index] || {};
                     addressRefs.current[index][field] = el;
                   }
                 }}
@@ -206,7 +201,7 @@ const AddressSection: React.FC<AddressSectionProps> = ({
               key={`country-${index}`}
               ref={(el) => {
                 if (el) {
-                  addressRefs.current[index] = addressRefs.current[index] || {}; // Ensure it exists
+                  addressRefs.current[index] = addressRefs.current[index] || {};
                   addressRefs.current[index]['country'] = el;
                 }
               }}

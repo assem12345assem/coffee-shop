@@ -16,7 +16,6 @@ import {
   validateDOB,
   validateEmail,
   validateName,
-  validatePassword,
   validatePostalCode,
   validateStreet,
 } from '@/utils/validation';
@@ -111,7 +110,6 @@ const ProfileComponent: React.FC = () => {
       ...generatePersonalInfoActions(customerInputRefs),
       ...generateAddressActions(customer),
     ];
-    console.log('????', JSON.stringify(addressRefs, null, 2));
     if (customer.defaultBillingAddressId !== customerInputRefs.current['defaultBilling']?.initialValue) {
       actions.push({
         action: 'setDefaultBillingAddress',
@@ -130,7 +128,6 @@ const ProfileComponent: React.FC = () => {
   };
 
   const updateCustomerProfile = async (payload: CustomerUpdate) => {
-    console.log('happenned', payload);
     try {
       const response = await updateCustomer(customer, payload);
 
@@ -229,7 +226,6 @@ const ProfileComponent: React.FC = () => {
     setIsEditing(false);
   };
   const onAdd = async (newAddress: addAddressType) => {
-    // setCustomer(customer);
     const requestBody: CustomerUpdateAction[] = [];
     requestBody.push({ action: 'addAddress', address: newAddress });
 
@@ -251,7 +247,6 @@ const ProfileComponent: React.FC = () => {
         showToast('Failed to retrieve newly added address. Please try again.', 'error');
         return;
       }
-      // setCustomer(response);
       const defaultUpdateActions: CustomerUpdateAction[] = [];
       if (newAddress.isDefaultBilling) {
         defaultUpdateActions.push({ action: 'setDefaultBillingAddress', addressId: newAddressId });
@@ -310,7 +305,6 @@ const ProfileComponent: React.FC = () => {
       ...updatedAddress,
       country: normalizeCountryInput(updatedAddress.country),
     };
-    console.log('normal', normalizedCountryAddress);
     const updateActions: CustomerUpdateAction[] = [
       { action: 'changeAddress', addressId: updatedAddress.id!, address: normalizedCountryAddress },
     ];
@@ -346,7 +340,7 @@ const ProfileComponent: React.FC = () => {
       });
       updateCustomerState(response);
       showToast('Address updated successfully!', 'success');
-      setAddressToEdit(null);
+      if (addressToEdit) setAddressToEdit(null);
     } catch (error) {
       console.error('Error updating address:', error);
       showToast('Failed to update address. Please try again.', 'error');

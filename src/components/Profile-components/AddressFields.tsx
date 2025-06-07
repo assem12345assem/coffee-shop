@@ -4,14 +4,12 @@ import Input from '@/components/Login-registration-components/Input';
 import CountryInput from '@/components/Login-registration-components/CountryInput';
 import { validatePostalCode, validateCountry, validateStreet, validateCity } from '@/utils/validation';
 import type { Address } from '@commercetools/platform-sdk';
-import type { Customer } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
 import { denormalizeCountryCode } from '@/utils/customerUtils';
 import type { InputHandle } from '@/data/interfaces';
 
 interface AddressFieldsProps {
   address?: Address;
   setAddress: (updatedAddress: Address) => void;
-  customer: Customer;
   addressRefs: RefObject<Record<number, Record<string, InputHandle>>>;
   addressValidityRefs: RefObject<Record<number, Record<string, boolean>>>;
   index: number;
@@ -29,7 +27,6 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
     country: '',
   },
   setAddress,
-  customer,
   addressRefs,
   addressValidityRefs,
   index,
@@ -68,16 +65,13 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
             label="Country"
             initialValue={denormalizeCountryCode(address.country)}
             onChange={(selectedCountry) => {
-              // ✅ Update address synchronously
               const updatedAddress = { ...address, country: selectedCountry };
               setAddress(updatedAddress);
 
-              // ✅ Validate country
               const countryError = validateCountry(selectedCountry);
               addressValidityRefs.current[index].country = countryError === '';
               addressRefs.current[index]?.country?.setErrorExternally?.(countryError);
 
-              // ✅ Re-validate postal code with updated country
               const postalCodeVal = addressRefs.current[index]?.postalCode?.getValue() || '';
               const postalCodeError = validatePostalCode(postalCodeVal, selectedCountry);
               addressRefs.current[index]?.postalCode?.setErrorExternally(postalCodeError);

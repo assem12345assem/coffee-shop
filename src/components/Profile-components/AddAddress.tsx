@@ -6,11 +6,12 @@ import { validateStreet, validateCity, validatePostalCode, validateCountry } fro
 import { normalizeCountryInput } from '@/utils/customerUtils';
 import type { AddressRefs } from '@/data/interfaces';
 import Button from '@/components/Login-registration-components/Button';
+import type { Address } from '@commercetools/platform-sdk';
 
 export const AddAddress: React.FC<{
-  onAdd: (newAddress: any) => void;
+  onAdd: (newAddress: Address) => void;
   handleSetDefaultAddress: (field: string, addressId: string) => void;
-}> = ({ onAdd, handleSetDefaultAddress }) => {
+}> = ({ onAdd }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDefaultBilling, setIsDefaultBilling] = useState(false);
   const [isDefaultShipping, setIsDefaultShipping] = useState(false);
@@ -87,10 +88,6 @@ export const AddAddress: React.FC<{
 
                 const error = validatePostalCode(currentPostal, selectedCountry);
                 addressRefs.current['postalCode']?.setErrorExternally(error);
-
-                console.log('Postal Code:', currentPostal);
-                console.log('Selected Country:', selectedCountry);
-                console.log('Validation Error:', error);
               }}
               validate={validateCountry}
             />
