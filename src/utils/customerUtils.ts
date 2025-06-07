@@ -90,6 +90,12 @@ export function normalizeCountryInput(countryName: string): string {
   );
   return match ? match.code : 'GE';
 }
+export function denormalizeCountryCode(countryCode: string): string {
+  const match: Country | undefined = countries.find(
+    (country: Country): boolean => country.code.toLowerCase() === countryCode.trim().toLowerCase()
+  );
+  return match ? match.name : 'Unknown Country';
+}
 
 export function saveToSessionStorage(key: string, value: string): void {
   sessionStorage.setItem(key, value);

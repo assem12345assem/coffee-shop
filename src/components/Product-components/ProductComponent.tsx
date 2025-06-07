@@ -8,6 +8,7 @@ interface Props {
 }
 
 const ProductComponent: React.FC<Props> = ({ product }) => {
+  console.log(product, 'ProductComponent');
   const calculateDiscountPrice = () => {
     if (!product.is_sale || !product.sale_percent) return product.price;
     const discountAmount = product.price * (product.sale_percent / 100);
@@ -19,7 +20,11 @@ const ProductComponent: React.FC<Props> = ({ product }) => {
   const isOnSale = product.is_sale && product.sale_percent;
 
   return (
-    <div className="bg-coffeeBrown rounded-[20px] p-[15px] w-[260px] h-[444px] relative transition-transform transition-shadow transition-colors duration-500 ease-in-out transform shadow-md hover:shadow-2xl hover:scale-[1.03] hover:bg-coffeeDark/80 flex flex-col">
+    <div
+      className="bg-coffeeBrown rounded-[20px] p-[15px] w-[260px] h-[444px] relative transition-transform transition-shadow
+     transition-colors duration-500 ease-in-out transform shadow-md hover:shadow-2xl 
+     hover:scale-[1.03] hover:bg-coffeeDark/80 flex flex-col"
+    >
       <div className="mb-2 h-[148px] bg-coffeeDark rounded-[20px] overflow-hidden flex items-center justify-center">
         {product.images?.length > 0 ? (
           <img

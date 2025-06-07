@@ -10,6 +10,8 @@ import type {
 import { CoffeeType } from '@/data/interfaces';
 import { fetchAllProducts } from '@/api/products';
 import { simplifyProducts } from '@/utils/productUtils';
+import { fetchProductById } from '@/api/products';
+import type { ProductProjection } from '@commercetools/platform-sdk';
 import type { ProductPagedQueryResponse } from '@commercetools/platform-sdk';
 
 class ProductService {
@@ -38,6 +40,14 @@ class ProductService {
     const raw: ProductPagedQueryResponse = await fetchAllProducts();
     this.products = simplifyProducts(raw);
     this.applyAll();
+  }
+
+  public async getProductById(id: string): Promise<ProductProjection | null> {
+    try {
+      return await fetchProductById(id);
+    } catch {
+      return null;
+    }
   }
 
   private applyAll() {
