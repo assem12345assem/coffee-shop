@@ -18,6 +18,7 @@ import {
   validatePostalCode,
   validateStreet,
 } from '@/utils/validation';
+import type { Address } from '@commercetools/platform-sdk';
 
 export const showToast = (message: string, type: 'success' | 'error') => {
   Toastify({
@@ -34,29 +35,26 @@ export const showToast = (message: string, type: 'success' | 'error') => {
 
 export const getUpdatedAddressFields = (index: number, addressRefs: RefObject<Record<string, AddressRefs>>) => {
   const updatedAddress: Record<string, string> = {};
-  let hasChanges = false;
 
   ['streetName', 'city', 'postalCode', 'country'].forEach((field) => {
     const inputRef = addressRefs.current[index]?.[field];
-    if (inputRef && inputRef.getValue() !== inputRef.initialValue) {
+    if (inputRef) {
       updatedAddress[field] = field === 'country' ? normalizeCountryInput(inputRef.getValue()) : inputRef.getValue();
-      hasChanges = true;
     }
   });
 
-  return hasChanges ? updatedAddress : null;
+  return updatedAddress;
 };
 
-export const generateAddressActions = (customer: Customer, addressRefs: RefObject<Record<string, AddressRefs>>) => {
+export const generateAddressActions = (customer: Customer) => {
   const actions: CustomerUpdateAction[] = [];
 
-  customer.addresses.forEach((address, index) => {
-    const updatedAddress = getUpdatedAddressFields(index, addressRefs);
-    if (updatedAddress) {
+  customer.addresses.forEach((address) => {
+    if (Object.keys(address).length > 0) {
       actions.push({
         action: 'changeAddress',
         addressId: address.id,
-        address: updatedAddress,
+        address: address,
       });
     }
   });
@@ -158,4 +156,27 @@ export function validateCustomer(customer: Customer): Record<string, string | Re
   }
 
   return errors;
+}
+export function validateAddressEntry(address: Address): Record<string, string> | null {
+  const addrErrors: Record<string, string> = {};
+  const fullNameCountry = denormalizeCountryCode(address.country);
+
+  if (address.streetName) {
+    const error = validateStreet(address.streetName);
+    if (error !== null) addrErrors.streetName = error;
+  }
+  if (address.city) {
+    const error = validateCity(address.city);
+    if (error !== null) addrErrors.city = error;
+  }
+  if (address.postalCode && address.country) {
+    const error = validatePostalCode(address.postalCode, fullNameCountry);
+    if (error !== null) addrErrors.postalCode = error;
+  }
+  if (address.country) {
+    const error = validateCountry(fullNameCountry);
+    if (error !== null) addrErrors.country = error;
+  }
+
+  return Object.keys(addrErrors).length > 0 ? addrErrors : null;
 }

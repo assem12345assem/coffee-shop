@@ -10,7 +10,7 @@ import type { InputHandle } from '@/data/interfaces';
 import pencilIcon from '@/assets/pencil.png';
 import removeIcon from '@/assets/remove.png';
 import AddressFields from '@/components/Profile-components/AddressFields';
-import { showToast } from '@/utils/profileUtils';
+import { showToast, validateAddressEntry, validateCustomer } from '@/utils/profileUtils';
 
 interface AddressSectionProps {
   customer: Customer;
@@ -51,6 +51,13 @@ const AddressSection: React.FC<AddressSectionProps> = ({
 
   const handleSaveAndClose = async () => {
     if (!addressToEdit) return;
+
+    const errors = validateAddressEntry(addressToEdit);
+    if (errors) {
+      console.warn('Validation failed', errors);
+      showToast('Please fix validation errors before submitting.', 'error');
+      return;
+    }
 
     handleSaveEdit(addressToEdit, {
       isBillingDefault,
@@ -162,8 +169,10 @@ const AddressSection: React.FC<AddressSectionProps> = ({
               <Input
                 key={`${index}-${field}`}
                 ref={(el) => {
-                  if (!addressRefs.current[index]) addressRefs.current[index] = {};
-                  addressRefs.current[index][field] = el;
+                  if (el) {
+                    addressRefs.current[index] = addressRefs.current[index] || {}; // Ensure it exists
+                    addressRefs.current[index][field] = el;
+                  }
                 }}
                 label={field.charAt(0).toUpperCase() + field.slice(1)}
                 initialValue={address[field as keyof Address] ?? ''}
@@ -193,8 +202,10 @@ const AddressSection: React.FC<AddressSectionProps> = ({
             <CountryInput
               key={`country-${index}`}
               ref={(el) => {
-                if (!addressRefs.current[index]) addressRefs.current[index] = {};
-                addressRefs.current[index]['country'] = el;
+                if (el) {
+                  addressRefs.current[index] = addressRefs.current[index] || {}; // Ensure it exists
+                  addressRefs.current[index]['country'] = el;
+                }
               }}
               label="Country"
               initialValue={isEditing ? address.country : denormalizeCountryCode(address.country)}

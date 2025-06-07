@@ -109,9 +109,9 @@ const ProfileComponent: React.FC = () => {
   const generateUpdatedCustomerPayload = (customer: Customer): CustomerUpdate | null => {
     const actions: CustomerUpdateAction[] = [
       ...generatePersonalInfoActions(customerInputRefs),
-      ...generateAddressActions(customer, addressRefs),
+      ...generateAddressActions(customer),
     ];
-
+    console.log('????', JSON.stringify(addressRefs, null, 2));
     if (customer.defaultBillingAddressId !== customerInputRefs.current['defaultBilling']?.initialValue) {
       actions.push({
         action: 'setDefaultBillingAddress',
@@ -131,6 +131,8 @@ const ProfileComponent: React.FC = () => {
 
   const updateCustomerProfile = async (payload: CustomerUpdate) => {
     try {
+      console.log('!!!!', customer);
+      console.log('!!!!', payload);
       const response = await updateCustomer(customer, payload);
 
       showToast('Profile updated successfully!', 'success');
@@ -222,6 +224,7 @@ const ProfileComponent: React.FC = () => {
         Object.values(addressRef).forEach((fieldRef) => fieldRef?.setErrorExternally?.(''));
       });
       updateCustomerState(originalCustomer);
+      showToast('Profile changes are cancelled', 'success');
       resetInputFields();
     }
     setIsEditing(false);
@@ -296,7 +299,7 @@ const ProfileComponent: React.FC = () => {
       console.error('Error removing address:', error);
       showToast('Failed to remove address. Please try again.', 'error');
     } finally {
-      setAddressToDelete(null); // Close dialog
+      setAddressToDelete(null);
     }
   };
 
@@ -343,7 +346,6 @@ const ProfileComponent: React.FC = () => {
       });
       updateCustomerState(response);
       window.location.reload();
-
       showToast('Address updated successfully!', 'success');
       setAddressToEdit(null);
     } catch (error) {
