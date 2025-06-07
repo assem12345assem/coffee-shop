@@ -2,7 +2,7 @@ import type { RefObject } from 'react';
 import React, { useEffect } from 'react';
 import Input from '@/components/Login-registration-components/Input';
 import CountryInput from '@/components/Login-registration-components/CountryInput';
-import { validatePostalCode, validateCountry } from '@/utils/validation';
+import { validatePostalCode, validateCountry, validateStreet, validateCity } from '@/utils/validation';
 import type { Address } from '@commercetools/platform-sdk';
 import type { Customer } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
 import { denormalizeCountryCode } from '@/utils/customerUtils';
@@ -32,7 +32,6 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
   isShippingDefault,
   setIsShippingDefault,
 }) => {
-  // Define the fields you want to render inputs for
   const allowedFields = ['streetName', 'city', 'postalCode', 'country'];
 
   return (
@@ -49,8 +48,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
             initialValue={denormalizeCountryCode(address.country)}
             onChange={(selectedCountry) => {
               setAddress({ ...address, country: selectedCountry });
-              // Validate postal code whenever country changes
-              const currentPostal = address.postalCode || '';
+              const currentPostal = addressRefs.current[index]?.postalCode?.getValue() || address.postalCode || '';
               const error = validatePostalCode(currentPostal, selectedCountry);
               addressRefs.current[index]?.postalCode?.setErrorExternally(error);
             }}
@@ -67,12 +65,26 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
             initialValue={address[field as keyof Address] ?? ''}
             onChange={(val) => {
               setAddress({ ...address, [field]: val });
-              if (field === 'postalCode') {
+
+              // Validation Logic
+              if (field === 'streetName') {
+                addressRefs.current[index]?.streetName?.setErrorExternally(validateStreet(val));
+              } else if (field === 'city') {
+                addressRefs.current[index]?.city?.setErrorExternally(validateCity(val));
+              } else if (field === 'postalCode') {
                 const error = validatePostalCode(val, address.country);
                 addressRefs.current[index]?.postalCode?.setErrorExternally(error);
               }
             }}
-            validate={field === 'postalCode' ? (val) => validatePostalCode(val, address.country) : undefined}
+            validate={
+              field === 'streetName'
+                ? validateStreet
+                : field === 'city'
+                  ? validateCity
+                  : field === 'postalCode'
+                    ? (val) => validatePostalCode(val, address.country)
+                    : undefined
+            }
           />
         )
       )}

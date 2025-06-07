@@ -30,8 +30,6 @@ import PersonalInfoSection from '@/components/Profile-components/PersonalInfoSec
 import AddressSection from '@/components/Profile-components/AddressSection';
 import { PasswordChangeButton } from '@/components/Profile-components/PasswordChangeButton';
 import AddAddress from '@/components/Profile-components/AddAddress';
-import Input from '@/components/Login-registration-components/Input';
-import CountryInput from '@/components/Login-registration-components/CountryInput';
 
 const ProfileComponent: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -324,8 +322,6 @@ const ProfileComponent: React.FC = () => {
         actions: updateActions,
       });
       setCustomer({ ...response });
-      console.log('set');
-      console.log(customer);
 
       showToast('Address updated successfully!', 'success');
       setAddressToEdit(null);
