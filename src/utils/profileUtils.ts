@@ -1,6 +1,6 @@
 import Toastify from 'toastify-js';
 import 'toastify-js/src/toastify.css';
-import { normalizeCountryInput } from '@/utils/customerUtils';
+import { denormalizeCountryCode, normalizeCountryInput } from '@/utils/customerUtils';
 import type {
   Customer,
   CustomerSetAddressCustomTypeAction,
@@ -8,6 +8,16 @@ import type {
 } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
 import type { RefObject } from 'react';
 import type { AddressRefs, CustomerPersonalFields, ValidCustomerAction } from '@/data/interfaces';
+import {
+  validateCity,
+  validateCountry,
+  validateDOB,
+  validateEmail,
+  validateName,
+  validatePassword,
+  validatePostalCode,
+  validateStreet,
+} from '@/utils/validation';
 
 export const showToast = (message: string, type: 'success' | 'error') => {
   Toastify({
@@ -93,3 +103,59 @@ export const generatePersonalInfoActions = (
 
   return actions;
 };
+
+export function validateCustomer(customer: Customer): Record<string, string | Record<string, string>[]> {
+  const errors: Record<string, string> = {};
+
+  // Validation mappings
+  const validators: Record<string, (value: string) => string | null> = {
+    email: validateEmail,
+    firstName: validateName,
+    lastName: validateName,
+    dateOfBirth: validateDOB,
+  };
+
+  // Validate customer fields and **only store actual errors**
+  Object.keys(validators).forEach((field) => {
+    if (customer[field]) {
+      const error = validators[field](customer[field]);
+      if (error !== null) {
+        errors[field] = error;
+      }
+    }
+  });
+
+  if (Array.isArray(customer.addresses)) {
+    const addressErrors = customer.addresses
+      .map((address) => {
+        const addrErrors: Record<string, string> = {};
+        const fullNameCountry = denormalizeCountryCode(address.country);
+
+        if (address.streetName) {
+          const error = validateStreet(address.streetName);
+          if (error !== null) addrErrors.streetName = error;
+        }
+        if (address.city) {
+          const error = validateCity(address.city);
+          if (error !== null) addrErrors.city = error;
+        }
+        if (address.postalCode && address.country) {
+          const error = validatePostalCode(address.postalCode, fullNameCountry);
+          if (error !== null) addrErrors.postalCode = error;
+        }
+        if (address.country) {
+          const error = validateCountry(fullNameCountry);
+          if (error !== null) addrErrors.country = error;
+        }
+
+        return Object.keys(addrErrors).length > 0 ? addrErrors : null;
+      })
+      .filter((error) => error !== null); // ✅ Removes `null` errors completely
+
+    if (addressErrors.length > 0) {
+      errors.addresses = addressErrors;
+    }
+  }
+
+  return errors;
+}

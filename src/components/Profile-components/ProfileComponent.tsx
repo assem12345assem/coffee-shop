@@ -16,6 +16,7 @@ import {
   validateDOB,
   validateEmail,
   validateName,
+  validatePassword,
   validatePostalCode,
   validateStreet,
 } from '@/utils/validation';
@@ -23,7 +24,7 @@ import type { addAddressType, HandleSaveEditOptions, InputHandle } from '@/data/
 import { updateCustomer } from '@/api/profile/update';
 import type { Address, CustomerUpdate } from '@commercetools/platform-sdk';
 import 'toastify-js/src/toastify.css';
-import { generateAddressActions, generatePersonalInfoActions, showToast } from '@/utils/profileUtils';
+import { generateAddressActions, generatePersonalInfoActions, showToast, validateCustomer } from '@/utils/profileUtils';
 import '@/styles/profile.css';
 import ProfileHeader from '@/components/Profile-components/ProfileHeader';
 import PersonalInfoSection from '@/components/Profile-components/PersonalInfoSection';
@@ -149,6 +150,14 @@ const ProfileComponent: React.FC = () => {
     e.preventDefault();
     setLoading(true);
 
+    const errors = validateCustomer(customer);
+    if (Object.keys(errors).length > 0) {
+      console.warn('Validation failed', errors);
+      showToast('Please fix validation errors before submitting.', 'error');
+      setErrorMessage('Please fix validation errors before submitting.');
+      setLoading(false);
+      return;
+    }
     const payload = generateUpdatedCustomerPayload(customer);
 
     if (!payload) {
