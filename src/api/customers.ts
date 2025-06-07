@@ -8,7 +8,7 @@ import type {
 import type { SignInResponse } from '@/data/interfaces';
 import { getApiRoot } from '@/utils/getApiRoot';
 
-const customersEndpoint: ByProjectKeyCustomersRequestBuilder = getApiRoot().customers();
+export const customersEndpoint: ByProjectKeyCustomersRequestBuilder = getApiRoot().customers();
 
 export async function registerCustomer(customerDraft: CustomerDraft): Promise<SignInResponse> {
   try {

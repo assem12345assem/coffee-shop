@@ -12,7 +12,7 @@ import type {
 } from '@/data/interfaces';
 
 const PasswordInput: RefPasswordInputType = forwardRef<InputHandle, PasswordInputProps>(
-  ({ showForgotPassword = true, placeholder }: PasswordInputProps, ref: RefPropType): ReactElement => {
+  ({ showForgotPassword = true, placeholder, label }: PasswordInputProps, ref: RefPropType): ReactElement => {
     const [showPassword, setShowPassword] = useState(false);
     const [value, setValue] = useState('');
     const [error, setError] = useState('');
@@ -35,7 +35,7 @@ const PasswordInput: RefPasswordInputType = forwardRef<InputHandle, PasswordInpu
     );
     return (
       <div className="flex flex-col w-full">
-        <label className="font-semibold text-base mb-1">Password</label>
+        <label className="font-semibold text-base mb-1">{label ? label : 'Password'}</label>
         <div className="relative w-full">
           <input
             className="w-full h-12 px-3 pr-12 border border-gray-300 rounded-lg bg-white font-poppins text-base"

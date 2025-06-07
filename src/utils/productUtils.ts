@@ -21,7 +21,7 @@ export function simplifyProducts(apiResponse: ProductPagedQueryResponse): Produc
       ingredients: getAttributeValue(attributes, 'ingredients') || [],
       is_sale: getAttributeValue(attributes, 'is_sale') || false,
       sale_percent: getNumericValue(attributes, 'sale_percent') || 0,
-      images: item.images?.map((img) => img.url) || [], // ✅ FIXED
+      images: item.images?.map((img) => img.url) || [],
       category: getEnumValue(attributes, 'category', CategoryType) || CategoryType.normal_coffee,
       sku: item.sku || '',
       key: item.key || '',
@@ -33,7 +33,7 @@ export function simplifySingleProduct(product: ProductProjection): ProductIntefa
   const item = product.masterVariant;
   const attributes: Attribute[] = item.attributes || [];
 
-  const getAttributeValue = (name: string): any => attributes.find((attr) => attr.name === name)?.value ?? null;
+  const getAttributeValue = (name: string) => attributes.find((attr) => attr.name === name)?.value ?? null;
 
   const getEnumValue = <T>(name: string, enumMap: Record<string, T>): T | null => {
     const label = attributes.find((attr) => attr.name === name)?.value?.label;
@@ -54,14 +54,14 @@ export function simplifySingleProduct(product: ProductProjection): ProductIntefa
     ingredients: getAttributeValue('ingredients') || [],
     is_sale: getAttributeValue('is_sale') || false,
     sale_percent: getNumericValue('sale_percent') || 0,
-    images: item.images?.map((img) => img.url) || [], // ✅ FIXED
+    images: item.images?.map((img) => img.url) || [],
     category: getEnumValue('category', CategoryType) || CategoryType.normal_coffee,
     sku: item.sku || '',
     key: item.key || '',
   };
 }
 
-function getAttributeValue(attributes: Attribute[], name: string): any {
+function getAttributeValue(attributes: Attribute[], name: string) {
   return attributes.find((attr) => attr.name === name)?.value ?? null;
 }
 
