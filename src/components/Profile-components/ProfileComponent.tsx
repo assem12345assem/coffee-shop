@@ -293,6 +293,7 @@ const ProfileComponent: React.FC = () => {
 
   const handleSaveEdit = async (updatedAddress: Address, options: HandleSaveEditOptions = {}) => {
     if (!updatedAddress) return;
+
     const { isBillingDefault = false, isShippingDefault = false } = options;
     const normalizedCountryAddress = {
       ...updatedAddress,
@@ -332,6 +333,7 @@ const ProfileComponent: React.FC = () => {
         actions: updateActions,
       });
       updateCustomerState(response);
+      window.location.reload();
 
       showToast('Address updated successfully!', 'success');
       setAddressToEdit(null);

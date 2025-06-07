@@ -52,39 +52,6 @@ const AddressSection: React.FC<AddressSectionProps> = ({
   const handleSaveAndClose = async () => {
     if (!addressToEdit) return;
 
-    const refs = addressRefs.current[indexItem];
-    const validityMap = addressValidityRefs.current[indexItem];
-
-    if (!refs || !validityMap) {
-      showToast('Validation state is not initialized yet', 'error');
-      return;
-    }
-
-    const requiredFields = ['streetName', 'city', 'postalCode', 'country'];
-
-    // Step 1: Trigger validations manually
-    requiredFields.forEach((field) => {
-      const fieldRef = refs[field];
-      if (fieldRef?.validate) {
-        const value = fieldRef.getValue?.() || '';
-        const error = fieldRef.validate(value);
-        fieldRef.setErrorExternally?.(error);
-        validityMap[field] = error === '';
-      }
-    });
-
-    // Step 2: Wait one animation frame so DOM updates
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-
-    const allValid = requiredFields.every((field) => validityMap[field]);
-
-    if (!allValid) {
-      showToast('Please fix validation errors first', 'error');
-      console.warn('Validation failed — Save is aborted.');
-      return;
-    }
-
-    // ✅ All fields are valid — proceed
     handleSaveEdit(addressToEdit, {
       isBillingDefault,
       isShippingDefault,
