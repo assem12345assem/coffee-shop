@@ -1,5 +1,5 @@
 import type { RefObject } from 'react';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import Input from '@/components/Login-registration-components/Input';
 import CountryInput from '@/components/Login-registration-components/CountryInput';
 import { validatePostalCode, validateCountry, validateStreet, validateCity } from '@/utils/validation';
@@ -13,8 +13,8 @@ interface AddressFieldsProps {
   setAddress: (updatedAddress: Address) => void;
   customer: Customer;
   addressRefs: RefObject<Record<number, Record<string, InputHandle>>>;
+  addressValidityRefs: RefObject<Record<number, Record<string, boolean>>>;
   index: number;
-
   isBillingDefault: boolean;
   setIsBillingDefault: (value: boolean) => void;
   isShippingDefault: boolean;
@@ -22,10 +22,16 @@ interface AddressFieldsProps {
 }
 
 const AddressFields: React.FC<AddressFieldsProps> = ({
-  address = { streetName: '', city: '', postalCode: '', country: '' },
+  address = {
+    streetName: '',
+    city: '',
+    postalCode: '',
+    country: '',
+  },
   setAddress,
   customer,
   addressRefs,
+  addressValidityRefs,
   index,
   isBillingDefault,
   setIsBillingDefault,
@@ -33,6 +39,21 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
   setIsShippingDefault,
 }) => {
   const allowedFields = ['streetName', 'city', 'postalCode', 'country'];
+
+  const ensureValidityRefExists = useCallback(() => {
+    if (!addressValidityRefs.current[index]) {
+      addressValidityRefs.current[index] = {
+        streetName: false,
+        city: false,
+        postalCode: false,
+        country: false,
+      };
+    }
+  }, [addressValidityRefs, index]);
+
+  useEffect(() => {
+    ensureValidityRefExists();
+  }, [ensureValidityRefExists]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -47,10 +68,20 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
             label="Country"
             initialValue={denormalizeCountryCode(address.country)}
             onChange={(selectedCountry) => {
-              setAddress({ ...address, country: selectedCountry });
-              const currentPostal = addressRefs.current[index]?.postalCode?.getValue() || address.postalCode || '';
-              const error = validatePostalCode(currentPostal, selectedCountry);
-              addressRefs.current[index]?.postalCode?.setErrorExternally(error);
+              // ✅ Update address synchronously
+              const updatedAddress = { ...address, country: selectedCountry };
+              setAddress(updatedAddress);
+
+              // ✅ Validate country
+              const countryError = validateCountry(selectedCountry);
+              addressValidityRefs.current[index].country = countryError === '';
+              addressRefs.current[index]?.country?.setErrorExternally?.(countryError);
+
+              // ✅ Re-validate postal code with updated country
+              const postalCodeVal = addressRefs.current[index]?.postalCode?.getValue() || '';
+              const postalCodeError = validatePostalCode(postalCodeVal, selectedCountry);
+              addressRefs.current[index]?.postalCode?.setErrorExternally(postalCodeError);
+              addressValidityRefs.current[index].postalCode = postalCodeError === '';
             }}
             validate={validateCountry}
           />
@@ -64,17 +95,20 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
             label={field.charAt(0).toUpperCase() + field.slice(1)}
             initialValue={address[field as keyof Address] ?? ''}
             onChange={(val) => {
-              setAddress({ ...address, [field]: val });
+              const updatedAddress = { ...address, [field]: val };
+              setAddress(updatedAddress);
 
-              // Validation Logic
+              let error = '';
               if (field === 'streetName') {
-                addressRefs.current[index]?.streetName?.setErrorExternally(validateStreet(val));
+                error = validateStreet(val);
               } else if (field === 'city') {
-                addressRefs.current[index]?.city?.setErrorExternally(validateCity(val));
+                error = validateCity(val);
               } else if (field === 'postalCode') {
-                const error = validatePostalCode(val, address.country);
-                addressRefs.current[index]?.postalCode?.setErrorExternally(error);
+                error = validatePostalCode(val, address.country);
               }
+
+              addressRefs.current[index]?.[field]?.setErrorExternally(error);
+              addressValidityRefs.current[index][field] = error === '';
             }}
             validate={
               field === 'streetName'

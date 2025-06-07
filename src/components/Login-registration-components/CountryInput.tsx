@@ -37,7 +37,7 @@ const CountryInput = forwardRef<InputHandle, CountryInputProps>(
     const value = isControlled ? propValue : internalValue;
 
     const handleChange = (e: ChangeEvent<HTMLSelectElement>): void => {
-      if (readOnly) return; // Prevent selection when read-only
+      if (readOnly) return;
 
       const newValue = e.target.value;
       if (!isControlled) {
@@ -70,7 +70,7 @@ const CountryInput = forwardRef<InputHandle, CountryInputProps>(
           value={value}
           onChange={handleChange}
           onBlur={() => setError(validate?.(value) ?? '')}
-          disabled={readOnly} // Set disabled when readonly
+          disabled={readOnly}
         >
           <option value="">{placeholder}</option>
           {countries.map((country) => (

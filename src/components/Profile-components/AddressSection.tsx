@@ -10,6 +10,7 @@ import type { InputHandle } from '@/data/interfaces';
 import pencilIcon from '@/assets/pencil.png';
 import removeIcon from '@/assets/remove.png';
 import AddressFields from '@/components/Profile-components/AddressFields';
+import { showToast } from '@/utils/profileUtils';
 
 interface AddressSectionProps {
   customer: Customer;
@@ -39,6 +40,7 @@ const AddressSection: React.FC<AddressSectionProps> = ({
 
   const [isBillingDefault, setIsBillingDefault] = useState(false);
   const [isShippingDefault, setIsShippingDefault] = useState(false);
+  const addressValidityRefs = useRef<Record<number, Record<string, boolean>>>({});
 
   useEffect(() => {
     if (addressToEdit) {
@@ -50,10 +52,44 @@ const AddressSection: React.FC<AddressSectionProps> = ({
   const handleSaveAndClose = async () => {
     if (!addressToEdit) return;
 
+    const refs = addressRefs.current[indexItem];
+    const validityMap = addressValidityRefs.current[indexItem];
+
+    if (!refs || !validityMap) {
+      showToast('Validation state is not initialized yet', 'error');
+      return;
+    }
+
+    const requiredFields = ['streetName', 'city', 'postalCode', 'country'];
+
+    // Step 1: Trigger validations manually
+    requiredFields.forEach((field) => {
+      const fieldRef = refs[field];
+      if (fieldRef?.validate) {
+        const value = fieldRef.getValue?.() || '';
+        const error = fieldRef.validate(value);
+        fieldRef.setErrorExternally?.(error);
+        validityMap[field] = error === '';
+      }
+    });
+
+    // Step 2: Wait one animation frame so DOM updates
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+
+    const allValid = requiredFields.every((field) => validityMap[field]);
+
+    if (!allValid) {
+      showToast('Please fix validation errors first', 'error');
+      console.warn('Validation failed — Save is aborted.');
+      return;
+    }
+
+    // ✅ All fields are valid — proceed
     handleSaveEdit(addressToEdit, {
       isBillingDefault,
       isShippingDefault,
     });
+
     setAddressToEdit(null);
     closeModal();
   };
@@ -73,6 +109,7 @@ const AddressSection: React.FC<AddressSectionProps> = ({
               setAddress={setAddressToEdit}
               customer={customer}
               addressRefs={addressRefs}
+              addressValidityRefs={addressValidityRefs}
               index={indexItem}
               isBillingDefault={isBillingDefault}
               setIsBillingDefault={setIsBillingDefault}
@@ -81,7 +118,23 @@ const AddressSection: React.FC<AddressSectionProps> = ({
             />
 
             <div className="flex justify-end gap-2 mt-4">
-              <button className="bg-gray-600 text-white p-2 rounded-md" onClick={() => setAddressToEdit(null)}>
+              <button
+                className="bg-gray-600 text-white p-2 rounded-md"
+                onClick={() => {
+                  delete addressValidityRefs.current[indexItem];
+
+                  // ✅ 2. Clear errors from input fields if needed
+                  const fieldRefs = addressRefs.current[indexItem];
+                  if (fieldRefs) {
+                    Object.values(fieldRefs).forEach((ref) => {
+                      ref?.setErrorExternally?.('');
+                    });
+                  }
+
+                  // ✅ 3. Close modal and reset state
+                  setAddressToEdit(null);
+                }}
+              >
                 Cancel
               </button>
               <button className="bg-green-600 text-white p-2 rounded-md" onClick={handleSaveAndClose}>

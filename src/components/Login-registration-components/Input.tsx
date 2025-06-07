@@ -42,7 +42,7 @@ const Input: RefInputType = forwardRef<InputHandle, InputProps>(
           value={value}
           onChange={handleChange}
           onBlur={() => setError(validate?.(value) ?? '')}
-          readOnly={readOnly} // Pass the readOnly prop here
+          readOnly={readOnly}
           required
         />
         {error && <p className="text-red-500 text-sm mt-1">{error}</p>}

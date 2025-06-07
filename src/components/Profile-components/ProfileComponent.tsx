@@ -99,6 +99,12 @@ const ProfileComponent: React.FC = () => {
   if (!customer) {
     return <div>Loading customer data...</div>;
   }
+  const updateCustomerState = (customerValue: Customer) => {
+    setCustomer(null);
+    setTimeout(() => {
+      setCustomer(customerValue);
+    }, 0);
+  };
   const generateUpdatedCustomerPayload = (customer: Customer): CustomerUpdate | null => {
     const actions: CustomerUpdateAction[] = [
       ...generatePersonalInfoActions(customerInputRefs),
@@ -127,8 +133,7 @@ const ProfileComponent: React.FC = () => {
       const response = await updateCustomer(customer, payload);
 
       showToast('Profile updated successfully!', 'success');
-
-      setCustomer(response);
+      updateCustomerState(response);
       setSuccessMessage('Profile updated successfully!');
       setIsEditing(false);
     } catch (error) {
@@ -202,13 +207,18 @@ const ProfileComponent: React.FC = () => {
 
   const handleCancel = () => {
     if (originalCustomer) {
-      setCustomer(originalCustomer);
+      Object.values(customerInputRefs.current).forEach((ref) => ref?.setErrorExternally?.(''));
+
+      Object.values(addressRefs.current).forEach((addressRef) => {
+        Object.values(addressRef).forEach((fieldRef) => fieldRef?.setErrorExternally?.(''));
+      });
+      updateCustomerState(originalCustomer);
       resetInputFields();
     }
     setIsEditing(false);
   };
   const onAdd = async (newAddress: addAddressType) => {
-    setCustomer(customer);
+    // setCustomer(customer);
     const requestBody: CustomerUpdateAction[] = [];
     requestBody.push({ action: 'addAddress', address: newAddress });
 
@@ -218,7 +228,7 @@ const ProfileComponent: React.FC = () => {
         showToast('Failed to retrieve new address. Please try again.', 'error');
         return;
       }
-      setCustomer(response);
+      updateCustomerState(response);
       const newAddressId = response.addresses.find(
         (addr) =>
           addr.streetName === newAddress.streetName &&
@@ -230,7 +240,7 @@ const ProfileComponent: React.FC = () => {
         showToast('Failed to retrieve newly added address. Please try again.', 'error');
         return;
       }
-      setCustomer(response);
+      // setCustomer(response);
       const defaultUpdateActions: CustomerUpdateAction[] = [];
       if (newAddress.isDefaultBilling) {
         defaultUpdateActions.push({ action: 'setDefaultBillingAddress', addressId: newAddressId });
@@ -240,7 +250,7 @@ const ProfileComponent: React.FC = () => {
       }
       if (defaultUpdateActions.length > 0) {
         response = await updateCustomer(customer, { version: response.version, actions: defaultUpdateActions });
-        setCustomer(response);
+        updateCustomerState(response);
       }
       showToast('New address added successfully!', 'success');
       setSuccessMessage('New address added successfully!');
@@ -271,7 +281,7 @@ const ProfileComponent: React.FC = () => {
     try {
       const response = await updateCustomer(customer, { version: customer.version, actions: requestBody });
 
-      setCustomer(response); // Update the customer state
+      updateCustomerState(response);
       showToast(`Selected address removed successfully!`, 'success');
     } catch (error) {
       console.error('Error removing address:', error);
@@ -281,7 +291,7 @@ const ProfileComponent: React.FC = () => {
     }
   };
 
-  const handleSaveEdit22 = async (updatedAddress: Address, options: HandleSaveEditOptions = {}) => {
+  const handleSaveEdit = async (updatedAddress: Address, options: HandleSaveEditOptions = {}) => {
     if (!updatedAddress) return;
     const { isBillingDefault = false, isShippingDefault = false } = options;
     const normalizedCountryAddress = {
@@ -321,7 +331,7 @@ const ProfileComponent: React.FC = () => {
         version: customer.version,
         actions: updateActions,
       });
-      setCustomer({ ...response });
+      updateCustomerState(response);
 
       showToast('Address updated successfully!', 'success');
       setAddressToEdit(null);
@@ -393,7 +403,7 @@ const ProfileComponent: React.FC = () => {
               isEditing={isEditing}
               handleSetDefaultAddress={handleSetDefaultAddress}
               handleRemoveClick={handleRemoveClick}
-              handleSaveEdit={handleSaveEdit22}
+              handleSaveEdit={handleSaveEdit}
               closeModal={() => setAddressToEdit(null)}
             />
 
