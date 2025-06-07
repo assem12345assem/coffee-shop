@@ -3,7 +3,11 @@ import type {
   Customer,
   CustomerUpdateAction,
 } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
-import { denormalizeCountryCode, getLoggedInUserFromSessionStorage } from '@/utils/customerUtils';
+import {
+  denormalizeCountryCode,
+  getLoggedInUserFromSessionStorage,
+  normalizeCountryInput,
+} from '@/utils/customerUtils';
 import { getCustomerById } from '@/api/customers';
 import Button from '@/components/Login-registration-components/Button';
 import {
@@ -15,7 +19,7 @@ import {
   validatePostalCode,
   validateStreet,
 } from '@/utils/validation';
-import type { addAddressType, InputHandle } from '@/data/interfaces';
+import type { addAddressType, HandleSaveEditOptions, InputHandle } from '@/data/interfaces';
 import { updateCustomer } from '@/api/profile/update';
 import type { Address, CustomerUpdate } from '@commercetools/platform-sdk';
 import 'toastify-js/src/toastify.css';
@@ -26,6 +30,8 @@ import PersonalInfoSection from '@/components/Profile-components/PersonalInfoSec
 import AddressSection from '@/components/Profile-components/AddressSection';
 import { PasswordChangeButton } from '@/components/Profile-components/PasswordChangeButton';
 import AddAddress from '@/components/Profile-components/AddAddress';
+import Input from '@/components/Login-registration-components/Input';
+import CountryInput from '@/components/Login-registration-components/CountryInput';
 
 const ProfileComponent: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -35,6 +41,8 @@ const ProfileComponent: React.FC = () => {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const customerInputRefs = useRef<{ [key: string]: InputHandle }>({});
   const addressRefs = useRef<{ [key: number]: { [key: string]: InputHandle } }>({});
+  const [addressToEdit, setAddressToEdit] = useState<Address | null>(null);
+
   const validationFunctions = {
     firstName: validateName,
     lastName: validateName,
@@ -51,13 +59,13 @@ const ProfileComponent: React.FC = () => {
 
   useEffect(() => {
     if (addressToDelete !== null) {
-      document.body.style.overflow = 'hidden'; // Disable scrolling
+      document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'visible'; // Re-enable scrolling
+      document.body.style.overflow = 'visible';
     }
 
     return () => {
-      document.body.style.overflow = 'visible'; // Cleanup on unmount
+      document.body.style.overflow = 'visible';
     };
   }, [addressToDelete]);
 
@@ -145,7 +153,6 @@ const ProfileComponent: React.FC = () => {
       setLoading(false);
       return;
     }
-
     updateCustomerProfile(payload);
   };
 
@@ -165,7 +172,6 @@ const ProfileComponent: React.FC = () => {
   const resetInputFields = () => {
     Object.keys(customerInputRefs.current).forEach((field) => {
       const value = originalCustomer?.[field as keyof Customer];
-
       customerInputRefs.current[field]?.setValueExternally(typeof value === 'string' ? value : String(value ?? ''));
     });
 
@@ -204,14 +210,7 @@ const ProfileComponent: React.FC = () => {
     setIsEditing(false);
   };
   const onAdd = async (newAddress: addAddressType) => {
-    setCustomer((prev) =>
-      prev
-        ? {
-            ...prev,
-            addresses: [...prev.addresses, newAddress],
-          }
-        : prev
-    );
+    setCustomer(customer);
     const requestBody: CustomerUpdateAction[] = [];
     requestBody.push({ action: 'addAddress', address: newAddress });
 
@@ -264,15 +263,11 @@ const ProfileComponent: React.FC = () => {
   };
   const handleConfirmRemove = async () => {
     if (addressToDelete === null) return;
-
-    // Get the address ID for removal
     const addressId = customer?.addresses[addressToDelete]?.id;
     if (!addressId) {
       showToast('Failed to remove address. No ID found.', 'error');
       return;
     }
-
-    // Update request payload
     const requestBody: CustomerUpdateAction[] = [{ action: 'removeAddress', addressId }];
 
     try {
@@ -285,6 +280,58 @@ const ProfileComponent: React.FC = () => {
       showToast('Failed to remove address. Please try again.', 'error');
     } finally {
       setAddressToDelete(null); // Close dialog
+    }
+  };
+
+  const handleSaveEdit22 = async (updatedAddress: Address, options: HandleSaveEditOptions = {}) => {
+    if (!updatedAddress) return;
+    const { isBillingDefault = false, isShippingDefault = false } = options;
+    const normalizedCountryAddress = {
+      ...updatedAddress,
+      country: normalizeCountryInput(updatedAddress.country),
+    };
+    const updateActions: CustomerUpdateAction[] = [
+      { action: 'changeAddress', addressId: updatedAddress.id!, address: normalizedCountryAddress },
+    ];
+
+    if (isBillingDefault && customer.defaultBillingAddressId !== updatedAddress.id) {
+      updateActions.push({
+        action: 'setDefaultBillingAddress',
+        addressId: updatedAddress.id!,
+      });
+    } else if (!isBillingDefault && customer.defaultBillingAddressId === updatedAddress.id) {
+      updateActions.push({
+        action: 'setDefaultBillingAddress',
+        addressId: '',
+      });
+    }
+
+    if (isShippingDefault && customer.defaultShippingAddressId !== updatedAddress.id) {
+      updateActions.push({
+        action: 'setDefaultShippingAddress',
+        addressId: updatedAddress.id!,
+      });
+    } else if (!isShippingDefault && customer.defaultShippingAddressId === updatedAddress.id) {
+      updateActions.push({
+        action: 'setDefaultShippingAddress',
+        addressId: '',
+      });
+    }
+
+    try {
+      const response = await updateCustomer(JSON.parse(JSON.stringify(customer)), {
+        version: customer.version,
+        actions: updateActions,
+      });
+      setCustomer({ ...response });
+      console.log('set');
+      console.log(customer);
+
+      showToast('Address updated successfully!', 'success');
+      setAddressToEdit(null);
+    } catch (error) {
+      console.error('Error updating address:', error);
+      showToast('Failed to update address. Please try again.', 'error');
     }
   };
 
@@ -346,11 +393,12 @@ const ProfileComponent: React.FC = () => {
 
             <AddressSection
               customer={customer}
-              addressRefs={addressRefs}
               setCustomer={setCustomer}
               isEditing={isEditing}
               handleSetDefaultAddress={handleSetDefaultAddress}
               handleRemoveClick={handleRemoveClick}
+              handleSaveEdit={handleSaveEdit22}
+              closeModal={() => setAddressToEdit(null)}
             />
 
             {isEditing && (

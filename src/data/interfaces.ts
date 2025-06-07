@@ -334,3 +334,7 @@ export type addAddressType = {
   isDefaultBilling: boolean;
   isDefaultShipping: boolean;
 };
+export interface HandleSaveEditOptions {
+  isBillingDefault?: boolean;
+  isShippingDefault?: boolean;
+}
