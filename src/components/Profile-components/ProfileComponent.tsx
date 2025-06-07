@@ -130,9 +130,8 @@ const ProfileComponent: React.FC = () => {
   };
 
   const updateCustomerProfile = async (payload: CustomerUpdate) => {
+    console.log('happenned', payload);
     try {
-      console.log('!!!!', customer);
-      console.log('!!!!', payload);
       const response = await updateCustomer(customer, payload);
 
       showToast('Profile updated successfully!', 'success');
@@ -311,6 +310,7 @@ const ProfileComponent: React.FC = () => {
       ...updatedAddress,
       country: normalizeCountryInput(updatedAddress.country),
     };
+    console.log('normal', normalizedCountryAddress);
     const updateActions: CustomerUpdateAction[] = [
       { action: 'changeAddress', addressId: updatedAddress.id!, address: normalizedCountryAddress },
     ];
@@ -345,7 +345,6 @@ const ProfileComponent: React.FC = () => {
         actions: updateActions,
       });
       updateCustomerState(response);
-      window.location.reload();
       showToast('Address updated successfully!', 'success');
       setAddressToEdit(null);
     } catch (error) {

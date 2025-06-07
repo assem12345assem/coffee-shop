@@ -49,16 +49,19 @@ const AddressSection: React.FC<AddressSectionProps> = ({
     }
   }, [addressToEdit, customer]);
 
-  const handleSaveAndClose = async () => {
+  const handleSaveAndClose = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!addressToEdit) return;
-
+    console.log('addressToEdit', addressToEdit);
     const errors = validateAddressEntry(addressToEdit);
+
     if (errors) {
       console.warn('Validation failed', errors);
-      showToast('Please fix validation errors before submitting.', 'error');
+      showToast('Please try again, validation failed.', 'error');
       return;
     }
 
+    console.log('no errors!');
     handleSaveEdit(addressToEdit, {
       isBillingDefault,
       isShippingDefault,
@@ -112,7 +115,7 @@ const AddressSection: React.FC<AddressSectionProps> = ({
                 Cancel
               </button>
               <button className="bg-green-600 text-white p-2 rounded-md" onClick={handleSaveAndClose}>
-                Save Changes
+                Save Address
               </button>
             </div>
           </div>

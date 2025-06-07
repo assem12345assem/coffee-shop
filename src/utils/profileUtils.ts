@@ -159,8 +159,7 @@ export function validateCustomer(customer: Customer): Record<string, string | Re
 }
 export function validateAddressEntry(address: Address): Record<string, string> | null {
   const addrErrors: Record<string, string> = {};
-  const fullNameCountry = denormalizeCountryCode(address.country);
-
+  const addressCountry = address.country.length === 2 ? denormalizeCountryCode(address.country) : address.country;
   if (address.streetName) {
     const error = validateStreet(address.streetName);
     if (error !== null) addrErrors.streetName = error;
@@ -170,11 +169,11 @@ export function validateAddressEntry(address: Address): Record<string, string> |
     if (error !== null) addrErrors.city = error;
   }
   if (address.postalCode && address.country) {
-    const error = validatePostalCode(address.postalCode, fullNameCountry);
+    const error = validatePostalCode(address.postalCode, addressCountry);
     if (error !== null) addrErrors.postalCode = error;
   }
   if (address.country) {
-    const error = validateCountry(fullNameCountry);
+    const error = validateCountry(addressCountry);
     if (error !== null) addrErrors.country = error;
   }
 
