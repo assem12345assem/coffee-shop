@@ -1,51 +1,115 @@
 import React, { useEffect, useState } from 'react';
-import { CategoryType } from '@/data/interfaces';
+import { categoryService } from '@/api/category/CategoryService';
 
 interface FilterComponentProps {
-  onFilterChange: (filters: { isSale?: boolean; category?: string }) => void;
+  onFilterChange: (filters: { isSale?: boolean; category?: string; priceMin?: number; priceMax?: number }) => void;
+}
+
+interface SimpleCategory {
+  key: string;
+  label: string;
 }
 
 const FilterComponent: React.FC<FilterComponentProps> = ({ onFilterChange }) => {
   const [isSale, setIsSale] = useState<boolean | undefined>(undefined);
-  const [selectedCategory, setSelectedCategory] = useState<string | ''>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [categories, setCategories] = useState<SimpleCategory[]>([]);
+  const [priceRange, setPriceRange] = useState<string>('');
+  const handleResetFilters = () => {
+    setIsSale(undefined);
+    setSelectedCategory('');
+    setPriceRange('');
+  };
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const results = await categoryService.getSubcategoriesByParentKey('coffee');
+      console.log('Categories fetched:', results);
+
+      const simplified: SimpleCategory[] = results
+        .map((cat) => {
+          const key = cat.key || cat.slug?.['en-US'];
+          const nameObject = cat.name;
+          const label = nameObject && typeof nameObject === 'object' ? Object.values(nameObject)[0] : '';
+
+          if (!key || !label) {
+            console.warn('⚠️ Skipping category due to missing key or name', cat);
+          }
+
+          return {
+            key: key || '',
+            label: label || key || 'Unnamed Category',
+          };
+        })
+        .filter((cat): cat is SimpleCategory => !!cat.key && !!cat.label);
+
+      setCategories(simplified);
+    };
+
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
+    let min: number | undefined;
+    let max: number | undefined;
+
+    if (priceRange === 'under-5') {
+      max = 5;
+    } else if (priceRange === '5-15') {
+      min = 5;
+      max = 15;
+    } else if (priceRange === 'over-15') {
+      min = 15.01;
+    }
+
     onFilterChange({
-      isSale: isSale,
+      isSale,
       category: selectedCategory || undefined,
+      priceMin: min,
+      priceMax: max,
     });
-  }, [isSale, selectedCategory, onFilterChange]);
+  }, [isSale, selectedCategory, priceRange, onFilterChange]);
 
   return (
-    <div className="mb-4 flex gap-4 max-[500px]:flex-col max-[500px]:items-start max-[500px]:w-full">
+    <div className="mb-4 flex flex-wrap gap-4 max-[500px]:flex-col max-[500px]:items-start max-[500px]:w-full">
       <select
-        className="bg-transparent border-2 border-coffeeBrown rounded-lg px-4 py-2 text-coffeeBrown placeholder:text-coffeeBrown focus:outline-none focus:border-rustBrown transition-colors duration-300 w-[215px] text-lg
-             hover:bg-coffeeBrown hover:text-white max-[500px]:w-full"
+        className="filter-dropdown"
         value={isSale === undefined ? '' : isSale ? 'true' : 'false'}
         onChange={(e) => {
           const val = e.target.value;
-          if (val === '') setIsSale(undefined);
-          else setIsSale(val === 'true');
+          setIsSale(val === '' ? undefined : val === 'true');
         }}
       >
-        <option value="">All Products</option>
+        <option value="">All Sales</option>
         <option value="true">On Sale</option>
         <option value="false">Not On Sale</option>
       </select>
 
       <select
-        className="bg-transparent border-2 border-coffeeBrown rounded-lg px-5 py-2 text-coffeeBrown placeholder:text-coffeeBrown focus:outline-none focus:border-rustBrown transition-colors duration-300 w-[220px] text-lg
-             hover:bg-coffeeBrown hover:text-white max-[500px]:w-full"
+        className="filter-dropdown"
         value={selectedCategory}
-        onChange={(e) => setSelectedCategory(e.target.value as CategoryType)}
+        onChange={(e) => setSelectedCategory(e.target.value)}
       >
         <option value="">All Categories</option>
-        {Object.values(CategoryType).map((category) => (
-          <option key={category} value={category}>
-            {category}
+        {categories.map((category) => (
+          <option key={category.key} value={category.key}>
+            {category.label}
           </option>
         ))}
       </select>
+
+      <select className="filter-dropdown" value={priceRange} onChange={(e) => setPriceRange(e.target.value)}>
+        <option value="">All Prices</option>
+        <option value="under-5">Under $5</option>
+        <option value="5-15">$5 – $15</option>
+        <option value="over-15">Over $15</option>
+      </select>
+
+      <button
+        onClick={handleResetFilters}
+        className="filter-button bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 transition"
+      >
+        Reset Filters
+      </button>
     </div>
   );
 };

@@ -7,12 +7,12 @@ import type {
   SortValues,
   Subscriber,
 } from '@/data/interfaces';
-import { CoffeeType } from '@/data/interfaces';
 import { fetchAllProducts } from '@/api/products';
 import { simplifyProducts } from '@/utils/productUtils';
 import { fetchProductById } from '@/api/products';
 import type { ProductProjection } from '@commercetools/platform-sdk';
-import type { ProductPagedQueryResponse } from '@commercetools/platform-sdk';
+import type { Category } from '@commercetools/platform-sdk';
+import { categoryService } from '@/api/category/CategoryService';
 
 class ProductService {
   private static instance: ProductService;
@@ -37,8 +37,15 @@ class ProductService {
   }
 
   public async loadProducts(): Promise<void> {
-    const raw: ProductPagedQueryResponse = await fetchAllProducts();
-    this.products = simplifyProducts(raw);
+    const raw = await fetchAllProducts();
+    const categories = await categoryService.getCategories();
+
+    // Build a category map
+    const categoryMap = new Map<string, Category>();
+    categories.forEach((cat) => categoryMap.set(cat.id, cat));
+
+    // Now pass both arguments to simplifyProducts
+    this.products = simplifyProducts(raw, categoryMap);
     this.applyAll();
   }
 
@@ -64,13 +71,24 @@ class ProductService {
   }
 
   private applyFilters(product: ProductInteface): boolean {
-    const { category, isSale, type } = this.filters;
+    const { category, isSale, type, priceMin, priceMax } = this.filters;
 
-    return (
-      (category ? product.category === category : true) &&
-      (isSale !== undefined ? product.is_sale === isSale : true) &&
-      (type ? product.type === CoffeeType[type as keyof typeof CoffeeType] : true)
-    );
+    const matchesCategory = category ? product.category?.key === category : true;
+    const matchesSale = isSale !== undefined ? product.is_sale === isSale : true;
+    const matchesType = type ? product.type === type : true;
+    const matchesPriceMin = priceMin !== undefined ? product.price >= priceMin : true;
+    const matchesPriceMax = priceMax !== undefined ? product.price <= priceMax : true;
+
+    // Debug
+    console.log(`[FILTER] ${product.name} - $${product.price} →`, {
+      matchesCategory,
+      matchesSale,
+      matchesType,
+      matchesPriceMin,
+      matchesPriceMax,
+    });
+
+    return matchesCategory && matchesSale && matchesType && matchesPriceMin && matchesPriceMax;
   }
 
   private applySort(a: ProductInteface, b: ProductInteface): number {
@@ -98,6 +116,7 @@ class ProductService {
 
   public setFilter(filters: Partial<Filter>) {
     this.filters = { ...this.filters, ...filters };
+    console.log('[ProductService] Updated filters:', this.filters);
     this.resetPagination();
     this.applyAll();
   }

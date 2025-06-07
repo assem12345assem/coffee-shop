@@ -1,6 +1,5 @@
 import React from 'react';
 import type { ProductInteface } from '@/data/interfaces';
-import { CoffeeType } from '@/data/interfaces';
 import { Link } from 'react-router-dom';
 
 interface Props {
@@ -8,16 +7,19 @@ interface Props {
 }
 
 const ProductComponent: React.FC<Props> = ({ product }) => {
-  console.log(product, 'ProductComponent');
   const calculateDiscountPrice = () => {
     if (!product.is_sale || !product.sale_percent) return product.price;
-    const discountAmount = product.price * (product.sale_percent / 100);
-    return product.price - discountAmount;
+    return product.price * (1 - product.sale_percent / 100);
   };
 
   const originalPrice = product.price.toFixed(2);
   const discountPrice = calculateDiscountPrice().toFixed(2);
   const isOnSale = product.is_sale && product.sale_percent;
+
+  const productName =
+    typeof product.name === 'string'
+      ? product.name
+      : product.name || Object.values(product.name)[0] || 'Unnamed Product';
 
   return (
     <div
@@ -29,7 +31,7 @@ const ProductComponent: React.FC<Props> = ({ product }) => {
         {product.images?.length > 0 ? (
           <img
             src={product.images[0]}
-            alt={product.name}
+            alt={productName}
             className="w-full h-full object-cover"
             onError={(e) => {
               (e.target as HTMLImageElement).src = '/images/coffee-placeholder.jpg';
@@ -41,13 +43,7 @@ const ProductComponent: React.FC<Props> = ({ product }) => {
       </div>
 
       <div className="space-y-2 flex-grow">
-        <h2 className="text-white text-xl font-bold line-clamp-2">{product.name}</h2>
-
-        <p className="text-coffeeLight text-sm">
-          <span className="font-semibold">Type:</span>{' '}
-          {Object.keys(CoffeeType).find((key) => CoffeeType[key as keyof typeof CoffeeType] === product.type) ||
-            'Unknown'}
-        </p>
+        <h2 className="text-white text-xl font-bold line-clamp-2">{productName}</h2>
 
         {product.ingredients?.length > 0 && (
           <p className="text-coffeeLight text-sm">

@@ -199,26 +199,28 @@ export interface SessionUser {
   customerId: string;
   customerVersion: string;
 }
+export interface ProductCategory {
+  key: string;
+  name: {
+    en?: string;
+    [locale: string]: string | undefined;
+  };
+}
+export interface SimpleCategory {
+  key: string;
+  label: string;
+}
 
-export enum CoffeeType {
-  hot = 'Hot',
-  iced = 'Cold',
-}
-export enum CategoryType {
-  normal_coffee = 'Regular Coffee',
-  iced_coffee = 'Chilled Coffee',
-  luxury_coffee = 'Luxury Coffee',
-}
 export interface ProductInteface {
   id: string;
   name: string;
   price: number;
   description: string;
-  type: CoffeeType;
+  type: string;
   ingredients: string[];
   is_sale: boolean;
   sale_percent: number;
-  category: CategoryType;
+  category: ProductCategory | null;
   images: string[];
   sku: string;
   key: string;
@@ -236,7 +238,16 @@ export interface Pagination {
 export interface Filter {
   category?: string;
   isSale?: boolean;
-  type?: 'hot' | 'cold';
+  type?: string;
+  priceMin?: number;
+  priceMax?: number;
+}
+
+export interface ProductFilter {
+  is_sale?: boolean;
+  category?: string;
+  priceMin?: number;
+  priceMax?: number;
 }
 
 export type Subscriber = VoidFunction;
