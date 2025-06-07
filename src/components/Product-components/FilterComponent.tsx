@@ -72,7 +72,14 @@ const FilterComponent: React.FC<FilterComponentProps> = ({ onFilterChange }) => 
   return (
     <div className="mb-4 flex flex-wrap gap-4 max-[500px]:flex-col max-[500px]:items-start max-[500px]:w-full">
       <select
-        className="filter-dropdown"
+        className={`
+    filter-dropdown px-4 py-2 rounded-lg border-2 border-coffeeBrown cursor-pointer transition-colors duration-300 focus:outline-none focus:border-rustBrown
+    ${
+      isSale === undefined
+        ? 'bg-transparent text-coffeeBrown hover:bg-coffeeBrown hover:text-white'
+        : 'bg-coffeeBrown text-white'
+    }
+  `}
         value={isSale === undefined ? '' : isSale ? 'true' : 'false'}
         onChange={(e) => {
           const val = e.target.value;
@@ -85,7 +92,14 @@ const FilterComponent: React.FC<FilterComponentProps> = ({ onFilterChange }) => 
       </select>
 
       <select
-        className="filter-dropdown"
+        className={`
+    filter-dropdown px-4 py-2 rounded-lg border-2 border-coffeeBrown cursor-pointer transition-colors duration-300 focus:outline-none focus:border-rustBrown
+    ${
+      selectedCategory === ''
+        ? 'bg-transparent text-coffeeBrown hover:bg-coffeeBrown hover:text-white'
+        : 'bg-coffeeBrown text-white'
+    }
+  `}
         value={selectedCategory}
         onChange={(e) => setSelectedCategory(e.target.value)}
       >
@@ -97,7 +111,18 @@ const FilterComponent: React.FC<FilterComponentProps> = ({ onFilterChange }) => 
         ))}
       </select>
 
-      <select className="filter-dropdown" value={priceRange} onChange={(e) => setPriceRange(e.target.value)}>
+      <select
+        className={`
+    filter-dropdown px-4 py-2 rounded-lg border-2 border-coffeeBrown cursor-pointer transition-colors duration-300 focus:outline-none focus:border-rustBrown
+    ${
+      priceRange === ''
+        ? 'bg-transparent text-coffeeBrown hover:bg-coffeeBrown hover:text-white'
+        : 'bg-coffeeBrown text-white'
+    }
+  `}
+        value={priceRange}
+        onChange={(e) => setPriceRange(e.target.value)}
+      >
         <option value="">All Prices</option>
         <option value="under-5">Under $5</option>
         <option value="5-15">$5 – $15</option>
@@ -106,7 +131,17 @@ const FilterComponent: React.FC<FilterComponentProps> = ({ onFilterChange }) => 
 
       <button
         onClick={handleResetFilters}
-        className="filter-button bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 transition"
+        className={`
+    px-4 py-2
+    rounded-lg
+    border-2 border-coffeeBrown
+    bg-transparent
+    text-coffeeBrown
+    font-semibold
+    transition-colors duration-300
+    hover:bg-coffeeBrown hover:text-white
+    focus:outline-none focus:border-rustBrown
+  `}
       >
         Reset Filters
       </button>
