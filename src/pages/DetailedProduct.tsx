@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productService } from '@/api/product/ProductService';
+import { categoryService } from '@/api/category/CategoryService';
 import type { ProductInteface } from '@/data/interfaces';
-import { CoffeeType } from '@/data/interfaces';
 import { simplifySingleProduct } from '@/utils/productUtils';
 import ProductSlider from '@/components/Product-components/ProductSlider';
+import type { Category } from '@commercetools/platform-sdk';
+import Breadcrumb from '@/components/Product-components/Breadcrumb';
+
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import '@/styles/productSlider.css';
+
 const DetailedProduct: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<ProductInteface | null>(null);
@@ -21,15 +25,23 @@ const DetailedProduct: React.FC = () => {
   useEffect(() => {
     if (!id) return;
 
-    const fetchProduct = async () => {
+    const fetchProductWithCategory = async () => {
       try {
-        const result = await productService.getProductById(id);
+        const [result, categories] = await Promise.all([
+          productService.getProductById(id),
+          categoryService.getCategories(),
+        ]);
+
         if (!result) {
           setError('Product not found');
-        } else {
-          const simplified = simplifySingleProduct(result);
-          setProduct(simplified);
+          return;
         }
+
+        const categoryMap = new Map<string, Category>();
+        categories.forEach((cat) => categoryMap.set(cat.id, cat));
+
+        const simplified = simplifySingleProduct(result, categoryMap);
+        setProduct(simplified);
       } catch {
         setError('Failed to fetch product');
       } finally {
@@ -37,7 +49,7 @@ const DetailedProduct: React.FC = () => {
       }
     };
 
-    fetchProduct();
+    fetchProductWithCategory();
   }, [id]);
 
   const calculateDiscountPrice = () => {
@@ -54,10 +66,12 @@ const DetailedProduct: React.FC = () => {
 
   return (
     <div className="bg-lightCream py-10 px-4 sm:px-6 md:px-10 lg:px-20 relative">
+      <Breadcrumb currentCategoryKey={product.category?.key} productName={product.name} />
+
       <div className="max-w-screen-xl mx-auto mb-6 relative">
         <button
           onClick={() => navigate('/products')}
-          className="w-12 h-12 rounded-full bg-gradient-to-br from-[#8B5E3C] to-[#3B2F2F] flex items-center justify-center text-white font-bold text-xl shadow-[0_4px_0_#3B2F2F] transition-all duration-200 ease-in-out relative hover:-translate-y-1 hover:shadow-[0_6px_0_#3B2F2F] active:translate-y-0 active:shadow-none focus:ring-0 focus-visible:ring-0 focus:outline-none focus-visible:outline-none"
+          className="w-12 h-12 rounded-full bg-gradient-to-br from-[#8B5E3C] to-[#3B2F2F] flex items-center justify-center text-white font-bold text-xl shadow-[0_4px_0_#3B2F2F] transition-all duration-200 ease-in-out relative hover:-translate-y-1 hover:shadow-[0_6px_0_#3B2F2F] active:translate-y-0 active:shadow-none focus:ring-0"
           aria-label="Back to products"
         >
           <svg
@@ -70,8 +84,6 @@ const DetailedProduct: React.FC = () => {
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
-          <span className="absolute top-[-3px] left-[-3px] w-[calc(100%+6px)] h-[calc(100%+6px)] border-t-2 border-l-2 border-white rounded-full pointer-events-none"></span>
-          <span className="absolute bottom-[-3px] right-[-3px] w-[calc(100%+6px)] h-[calc(100%+6px)] border-b-2 border-r-2 border-white rounded-full pointer-events-none"></span>
         </button>
       </div>
 
@@ -95,16 +107,19 @@ const DetailedProduct: React.FC = () => {
           </div>
 
           <div className="text-coffeeLight text-base space-y-2">
-            <p>
-              <span className="font-semibold">Type:</span>{' '}
-              {Object.keys(CoffeeType).find((key) => CoffeeType[key as keyof typeof CoffeeType] === product.type) ||
-                'Unknown'}
-            </p>
+            {product.category && (
+              <p>
+                <span className="font-semibold">Category:</span>{' '}
+                {product.category.name?.en || Object.values(product.category.name)[0] || product.category.key}
+              </p>
+            )}
+
             {product.ingredients.length > 0 && (
               <p>
                 <span className="font-semibold">Ingredients:</span> {product.ingredients.join(', ')}
               </p>
             )}
+
             <p className="whitespace-pre-line text-black pt-5">
               <span className="font-semibold">Description:</span> {product.description}
             </p>
@@ -121,7 +136,6 @@ const DetailedProduct: React.FC = () => {
                     alt={`Product Image ${index + 1}`}
                     className="w-full h-[300px] sm:h-[350px] md:h-[400px] rounded-lg shadow-md object-cover"
                   />
-
                   <div
                     onClick={() => setShowSlider(true)}
                     className="cursor-pointer absolute inset-0 flex items-center justify-center transition-opacity duration-300 group-hover:opacity-100 opacity-0"
@@ -135,10 +149,10 @@ const DetailedProduct: React.FC = () => {
           </div>
         </div>
       </div>
+
       {showSlider && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div onClick={() => setShowSlider(false)} className="fixed inset-0 bg-black bg-opacity-90 cursor-pointer" />
-
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -149,7 +163,6 @@ const DetailedProduct: React.FC = () => {
           >
             &times;
           </button>
-
           <div className="relative w-full max-w-4xl z-40" onClick={(e) => e.stopPropagation()}>
             <ProductSlider product={product} />
           </div>
