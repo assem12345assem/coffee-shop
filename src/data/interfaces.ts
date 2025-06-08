@@ -66,9 +66,6 @@ export const languages: Language[] = [
     locale: 'en-US',
   },
 ];
-export type ProductType = 'Coffee' | 'Tea' | 'Smoothies';
-
-export const productTypes: ProductType[] = ['Coffee', 'Tea', 'Smoothies'];
 
 export interface Address {
   streetName: string;
@@ -228,7 +225,7 @@ export interface ProductInteface {
 export interface ProductSliderProps {
   product: ProductInteface;
 }
-export type SortField = 'name' | 'price' | 'type';
+export type SortField = 'name' | 'price';
 export type SortOrder = 'asc' | 'desc';
 export interface Pagination {
   offset: number;
@@ -286,5 +283,5 @@ export interface SearchComponentProps {
 export interface SortingComponentProps {
   initialField?: SortField;
   initialOrder?: SortOrder;
-  onSortChange?: (field: SortField, order: SortOrder) => void;
+  onSortChange?: (field: SortField | null, order: SortOrder | null) => void;
 }

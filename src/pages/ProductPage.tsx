@@ -54,8 +54,13 @@ const ProductPage: React.FC = () => {
   );
 
   const handleSortChange = useCallback(
-    (field: SortField, order: SortOrder) => {
-      setSort(field, order);
+    (field: SortField | null, order: SortOrder | null) => {
+      if (field && order) {
+        setSort(field, order);
+      } else {
+        setSort(null, null);
+      }
+
       setCurrentPage(1);
       setPagination(0, pageSize);
     },

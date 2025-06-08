@@ -20,7 +20,8 @@ class ProductService {
   private filteredProducts: ProductInteface[] = [];
 
   private searchTerm: string = '';
-  private sortField: SortField = 'id' as SortField;
+  private sortField: SortField | null = null;
+
   private sortOrder: SortOrder = 'asc';
   private filters: Filter = {};
   private pagination: Pagination = { offset: 0, limit: 10 };
@@ -40,11 +41,9 @@ class ProductService {
     const raw = await fetchAllProducts();
     const categories = await categoryService.getCategories();
 
-    // Build a category map
     const categoryMap = new Map<string, Category>();
     categories.forEach((cat) => categoryMap.set(cat.id, cat));
 
-    // Now pass both arguments to simplifyProducts
     this.products = simplifyProducts(raw, categoryMap);
     this.applyAll();
   }
@@ -83,20 +82,17 @@ class ProductService {
   }
 
   private applySort(a: ProductInteface, b: ProductInteface): number {
-    const field: SortField = this.sortField;
+    if (!this.sortField) return 0;
     const order: SortValues = this.sortOrder === 'asc' ? 1 : -1;
 
-    let aValue: string | number = a[field];
-    let bValue: string | number = b[field];
+    let aValue: string | number = a[this.sortField];
+    let bValue: string | number = b[this.sortField];
 
-    if (field === 'type') {
-      aValue = aValue.toString();
-      bValue = bValue.toString();
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return aValue.localeCompare(bValue) * order;
     }
 
-    if (aValue < bValue) return -1 * order;
-    if (aValue > bValue) return 1 * order;
-    return 0;
+    return (aValue < bValue ? -1 : aValue > bValue ? 1 : 0) * order;
   }
 
   public setSearchTerm(term: string) {
@@ -112,9 +108,9 @@ class ProductService {
     this.applyAll();
   }
 
-  public setSort(field: SortField, order: SortOrder = 'asc') {
+  public setSort(field: SortField | null, order: SortOrder | null = 'asc') {
     this.sortField = field;
-    this.sortOrder = order;
+    this.sortOrder = order ?? 'asc';
     this.resetPagination();
     this.applyAll();
   }
