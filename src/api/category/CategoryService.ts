@@ -7,7 +7,7 @@ export const categoryService = {
     try {
       const response: ClientResponse<CategoryPagedQueryResponse> = await getApiRoot()
         .categories()
-        .get({ queryArgs: { limit: 100 } }) // increased limit just in case
+        .get({ queryArgs: { limit: 100 } })
         .execute();
 
       return response.body.results;
@@ -17,22 +17,29 @@ export const categoryService = {
     }
   },
 
-  async getSubcategoriesByParentKey(parentKey: string): Promise<Category[]> {
+  async getCategoryByKey(key: string): Promise<Category | null> {
     try {
-      // Step 1: Get the parent category by key directly
-      const parentResponse = await getApiRoot()
+      const response = await getApiRoot()
         .categories()
-        .get({ queryArgs: { where: `key="${parentKey}"`, limit: 1 } })
+        .get({ queryArgs: { where: `key="${key}"`, limit: 1 } })
         .execute();
 
-      const parent = parentResponse.body.results?.[0];
+      return response.body.results[0] || null;
+    } catch (error) {
+      console.error(`Failed to fetch category by key "${key}":`, error);
+      return null;
+    }
+  },
+
+  async getSubcategoriesByParentKey(parentKey: string): Promise<Category[]> {
+    try {
+      const parent = await categoryService.getCategoryByKey(parentKey);
 
       if (!parent) {
         console.warn(`Parent category with key "${parentKey}" not found.`);
         return [];
       }
 
-      // Step 2: Fetch subcategories using parent.id
       const response = await getApiRoot()
         .categories()
         .get({
@@ -48,5 +55,25 @@ export const categoryService = {
       console.error('Failed to fetch subcategories:', error);
       return [];
     }
+  },
+
+  async getCategoryMap(): Promise<Map<string, Category>> {
+    const categories = await categoryService.getCategories();
+    const map = new Map<string, Category>();
+    categories.forEach((cat) => map.set(cat.id, cat));
+    return map;
+  },
+
+  getBreadcrumbPath(categoryId: string, categoryMap: Map<string, Category>): Category[] {
+    const path: Category[] = [];
+    let current = categoryMap.get(categoryId);
+
+    while (current) {
+      path.unshift(current);
+      const parentId = current.parent?.id;
+      current = parentId ? categoryMap.get(parentId) : undefined;
+    }
+
+    return path;
   },
 };

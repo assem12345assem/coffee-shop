@@ -79,15 +79,6 @@ class ProductService {
     const matchesPriceMin = priceMin !== undefined ? product.price >= priceMin : true;
     const matchesPriceMax = priceMax !== undefined ? product.price <= priceMax : true;
 
-    // Debug
-    console.log(`[FILTER] ${product.name} - $${product.price} →`, {
-      matchesCategory,
-      matchesSale,
-      matchesType,
-      matchesPriceMin,
-      matchesPriceMax,
-    });
-
     return matchesCategory && matchesSale && matchesType && matchesPriceMin && matchesPriceMax;
   }
 

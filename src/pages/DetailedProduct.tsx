@@ -6,6 +6,7 @@ import type { ProductInteface } from '@/data/interfaces';
 import { simplifySingleProduct } from '@/utils/productUtils';
 import ProductSlider from '@/components/Product-components/ProductSlider';
 import type { Category } from '@commercetools/platform-sdk';
+import Breadcrumb from '@/components/Product-components/Breadcrumb';
 
 const DetailedProduct: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -59,6 +60,8 @@ const DetailedProduct: React.FC = () => {
 
   return (
     <div className="bg-lightCream py-10 px-4 sm:px-6 md:px-10 lg:px-20 relative">
+      <Breadcrumb currentCategoryKey={product.category?.key} productName={product.name} />
+
       <div className="max-w-screen-xl mx-auto mb-6 relative">
         <button
           onClick={() => navigate('/products')}
