@@ -4,7 +4,6 @@ import type { SortField, SortOrder, SortingComponentProps } from '@/data/interfa
 const sortFieldLabels: Record<SortField, string> = {
   name: 'Name',
   price: 'Price',
-  type: 'Type',
 };
 
 const sortFields = (Object.keys(sortFieldLabels) as SortField[]).map((field) => ({
@@ -12,13 +11,9 @@ const sortFields = (Object.keys(sortFieldLabels) as SortField[]).map((field) => 
   field,
 }));
 
-const SortingComponent: React.FC<SortingComponentProps> = ({
-  initialField = 'name',
-  initialOrder = 'asc',
-  onSortChange,
-}) => {
-  const [sortField, setSortField] = useState<SortField>(initialField);
-  const [sortOrder, setSortOrder] = useState<SortOrder>(initialOrder);
+const SortingComponent: React.FC<SortingComponentProps> = ({ onSortChange }) => {
+  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
   const toggleSort = (field: SortField) => {
     if (field === sortField) {
@@ -32,13 +27,19 @@ const SortingComponent: React.FC<SortingComponentProps> = ({
     }
   };
 
+  const handleReset = () => {
+    setSortField(null);
+    setSortOrder('asc');
+    onSortChange?.(null, null); // 🔁 Inform ProductService to use original order
+  };
+
   const renderSortIcon = (field: SortField) => {
     if (field !== sortField) return null;
     return sortOrder === 'asc' ? '▲' : '▼';
   };
 
   return (
-    <div className="mb-4 flex flex-wrap gap-4 items-center">
+    <div className="mb-4 flex flex-wrap gap-4 items-center" role="group" aria-label="Sort products">
       {sortFields.map(({ label, field }) => (
         <button
           key={field}
@@ -59,13 +60,27 @@ const SortingComponent: React.FC<SortingComponentProps> = ({
             focus:outline-none focus:border-rustBrown
           `}
           aria-pressed={field === sortField}
-          aria-label={`Sort by ${label} ${
-            field === sortField ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'
-          }`}
         >
           {label} <span>{renderSortIcon(field)}</span>
         </button>
       ))}
+
+      <button
+        onClick={handleReset}
+        className={`
+          px-4 py-2
+          rounded-lg
+          border-2 border-coffeeBrown
+          bg-transparent
+          text-coffeeBrown
+          font-semibold
+          transition-colors duration-300
+          hover:bg-coffeeBrown hover:text-white
+          focus:outline-none focus:border-rustBrown
+        `}
+      >
+        Reset Sort
+      </button>
     </div>
   );
 };

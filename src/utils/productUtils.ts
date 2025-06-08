@@ -1,67 +1,51 @@
 import type {
   ProductProjection,
   Attribute,
-  Product,
-  ProductPagedQueryResponse,
   ProductVariant,
+  ProductProjectionPagedQueryResponse,
+  Category,
 } from '@commercetools/platform-sdk';
-import { CategoryType, CoffeeType, type ProductInteface } from '@/data/interfaces';
+import type { ProductInteface } from '@/data/interfaces';
 
-export function simplifyProducts(apiResponse: ProductPagedQueryResponse): ProductInteface[] {
-  return apiResponse.results.map((element: Product) => {
-    const item: ProductVariant = element.masterData.current.masterVariant;
-    const attributes: Attribute[] = item.attributes || [];
-
-    return {
-      id: element.id,
-      name: getAttributeValue(attributes, 'name') || item.sku || '',
-      price: getNumericValue(attributes, 'price') || 0,
-      description: getAttributeValue(attributes, 'description') || '',
-      type: getEnumValue(attributes, 'type', CoffeeType) || CoffeeType.hot,
-      ingredients: getAttributeValue(attributes, 'ingredients') || [],
-      is_sale: getAttributeValue(attributes, 'is_sale') || false,
-      sale_percent: getNumericValue(attributes, 'sale_percent') || 0,
-      images: item.images?.map((img) => img.url) || [],
-      category: getEnumValue(attributes, 'category', CategoryType) || CategoryType.normal_coffee,
-      sku: item.sku || '',
-      key: item.key || '',
-    };
-  });
+export function simplifyProducts(
+  apiResponse: ProductProjectionPagedQueryResponse,
+  categoryMap: Map<string, Category>
+): ProductInteface[] {
+  return apiResponse.results.map((product) => simplifySingleProduct(product, categoryMap));
 }
 
-export function simplifySingleProduct(product: ProductProjection): ProductInteface {
-  const item = product.masterVariant;
-  const attributes: Attribute[] = item.attributes || [];
+export function simplifySingleProduct(product: ProductProjection, categoryMap: Map<string, Category>): ProductInteface {
+  const variant: ProductVariant = product.masterVariant;
+  const attributes: Attribute[] = variant.attributes || [];
 
-  const getAttributeValue = (name: string) => attributes.find((attr) => attr.name === name)?.value ?? null;
+  const categoryId = product.categories?.[0]?.id;
+  const category = categoryId ? categoryMap.get(categoryId) : null;
 
-  const getEnumValue = <T>(name: string, enumMap: Record<string, T>): T | null => {
-    const label = attributes.find((attr) => attr.name === name)?.value?.label;
-    return label && label in enumMap ? enumMap[label as keyof typeof enumMap] : null;
-  };
-
-  const getNumericValue = (name: string): number | null => {
-    const val = getAttributeValue(name);
-    return typeof val === 'number' ? val : parseFloat(val);
-  };
+  const simplifiedCategory = category?.slug?.['en-US']
+    ? {
+        key: category.slug['en-US'], // ← we use slug as the key!
+        name: category.name ?? {},
+      }
+    : null;
 
   return {
     id: product.id,
-    name: getAttributeValue('name') || item.sku || '',
-    price: getNumericValue('price') || 0,
-    description: getAttributeValue('description') || '',
-    type: getEnumValue('type', CoffeeType) || CoffeeType.hot,
-    ingredients: getAttributeValue('ingredients') || [],
-    is_sale: getAttributeValue('is_sale') || false,
-    sale_percent: getNumericValue('sale_percent') || 0,
-    images: item.images?.map((img) => img.url) || [],
-    category: getEnumValue('category', CategoryType) || CategoryType.normal_coffee,
-    sku: item.sku || '',
-    key: item.key || '',
+    name: getAttributeValue(attributes, 'name') || variant.sku || '',
+    price: getNumericValue(attributes, 'price') || 0,
+    description: getAttributeValue(attributes, 'description') || '',
+    type: getAttributeValue(attributes, 'type') || '',
+    ingredients: getAttributeValue(attributes, 'ingredients') || [],
+    is_sale: getAttributeValue(attributes, 'is_sale') || false,
+    sale_percent: getNumericValue(attributes, 'sale_percent') || 0,
+    images: variant.images?.map((img) => img.url) || [],
+    category: simplifiedCategory,
+    sku: variant.sku || '',
+    key: variant.key || '',
   };
 }
 
-function getAttributeValue(attributes: Attribute[], name: string) {
+// Helpers
+function getAttributeValue(attributes: Attribute[], name: string): any {
   return attributes.find((attr) => attr.name === name)?.value ?? null;
 }
 
