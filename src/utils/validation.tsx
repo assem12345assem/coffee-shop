@@ -1,7 +1,6 @@
 import { allowedCountries } from '@/data/constants';
 
 export function validateEmail(email: string): string | null {
-  console.log('[validateEmail] received:', `"${email}"`);
   const hasLeadingOrTrailingWhitespace = email !== email.trim();
   if (hasLeadingOrTrailingWhitespace) {
     return 'Email must not contain leading or trailing spaces.';

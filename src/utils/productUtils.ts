@@ -14,7 +14,10 @@ export function simplifyProducts(
   return apiResponse.results.map((product) => simplifySingleProduct(product, categoryMap));
 }
 
-export function simplifySingleProduct(product: ProductProjection, categoryMap: Map<string, Category>): ProductInteface {
+export function simplifySingleProduct(
+  product: ProductProjection,
+  categoryMap: Map<string, Category>
+): ProductInteface {
   const variant: ProductVariant = product.masterVariant;
   const attributes: Attribute[] = variant.attributes || [];
 
@@ -23,7 +26,7 @@ export function simplifySingleProduct(product: ProductProjection, categoryMap: M
 
   const simplifiedCategory = category?.slug?.['en-US']
     ? {
-        key: category.slug['en-US'], // ← we use slug as the key!
+        key: category.slug['en-US'],
         name: category.name ?? {},
       }
     : null;
