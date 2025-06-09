@@ -104,6 +104,7 @@ const RegistrationFormComponent = () => {
     try {
       setLoading(true);
       await register(draft);
+
       setShowSuccess('Login successful');
     } catch (error: unknown) {
       setApiErrorMessage(handleApiError(error));

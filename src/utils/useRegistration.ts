@@ -25,7 +25,8 @@ export function useRegistration(): {
               navigate(ROUTES.cart);
             }, 2000);
           } else {
-            saveLoggedInUserToSessionStorage(response.customer);
+            saveLoggedInUserToSessionStorage(response.customer, true);
+
             setTimeout((): void => {
               navigate(ROUTES.main);
             }, 2000);
