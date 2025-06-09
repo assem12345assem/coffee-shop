@@ -23,7 +23,7 @@ export function simplifySingleProduct(product: ProductProjection, categoryMap: M
 
   const simplifiedCategory = category?.slug?.['en-US']
     ? {
-        key: category.slug['en-US'], // ← we use slug as the key!
+        key: category.slug['en-US'],
         name: category.name ?? {},
       }
     : null;

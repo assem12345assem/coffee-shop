@@ -8,6 +8,12 @@ import ProductSlider from '@/components/Product-components/ProductSlider';
 import type { Category } from '@commercetools/platform-sdk';
 import Breadcrumb from '@/components/Product-components/Breadcrumb';
 
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import '@/styles/productSlider.css';
+
 const DetailedProduct: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<ProductInteface | null>(null);
@@ -121,18 +127,25 @@ const DetailedProduct: React.FC = () => {
         </div>
 
         <div className="w-full md:w-[400px] lg:w-[500px] p-2 md:p-0 flex justify-center mx-auto">
-          <div className="relative w-full max-w-[400px] group">
-            <img
-              src={product.images[0]}
-              alt={`${typeof product.name === 'string' ? product.name : product.name || 'Product image'}`}
-              className="w-full h-auto rounded-lg shadow-md object-cover"
-            />
-            <div
-              onClick={() => setShowSlider(true)}
-              className="cursor-pointer absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 before:absolute before:inset-0 before:bg-black before:opacity-0 hover:before:opacity-40 before:rounded-lg"
-            >
-              <span className="relative z-10 text-white font-bold text-lg">Show more images</span>
-            </div>
+          <div className="relative w-full max-w-[400px] lg:max-w-[500px]">
+            <Swiper navigation={true} modules={[Navigation]} className="mySwiper">
+              {product.images.map((item, index) => (
+                <SwiperSlide key={index} className="relative group">
+                  <img
+                    src={item}
+                    alt={`Product Image ${index + 1}`}
+                    className="w-full h-[300px] sm:h-[350px] md:h-[400px] rounded-lg shadow-md object-cover"
+                  />
+                  <div
+                    onClick={() => setShowSlider(true)}
+                    className="cursor-pointer absolute inset-0 flex items-center justify-center transition-opacity duration-300 group-hover:opacity-100 opacity-0"
+                    style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
+                  >
+                    <span className="text-white font-bold text-lg">Show more images</span>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         </div>
       </div>
