@@ -26,7 +26,7 @@ const httpMiddlewareOptions: HttpMiddlewareOptions = {
 export const ctpClient: Client = new ClientBuilder()
   .withClientCredentialsFlow(authMiddlewareOptions)
   .withHttpMiddleware(httpMiddlewareOptions)
-  .withLoggerMiddleware()
+  // .withLoggerMiddleware()
   .build();
 
 export const getApiRoot = () =>

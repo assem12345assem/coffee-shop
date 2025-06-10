@@ -103,7 +103,6 @@ class ProductService {
 
   public setFilter(filters: Partial<Filter>) {
     this.filters = { ...this.filters, ...filters };
-    console.log('[ProductService] Updated filters:', this.filters);
     this.resetPagination();
     this.applyAll();
   }

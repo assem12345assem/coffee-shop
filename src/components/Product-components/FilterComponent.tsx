@@ -23,7 +23,6 @@ const FilterComponent: React.FC<FilterComponentProps> = ({ onFilterChange }) => 
   useEffect(() => {
     const fetchCategories = async () => {
       const results = await categoryService.getSubcategoriesByParentKey('coffee');
-      console.log('Categories fetched:', results);
 
       const simplified: SimpleCategory[] = results
         .map((cat) => {
